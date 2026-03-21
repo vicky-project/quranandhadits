@@ -28,7 +28,7 @@
           <div id="surahList">
             @foreach($surahs as $surah)
             <a href="{{ route('apps.quran.surah', $surah->number) }}" class="text-decoration-none">
-              <div class="list-group-item d-flex justify-content-between align-items-center mb-2 rounded-3 border-0" style="background-color: var(--tg-theme-section-bg-color);">
+              <div class="list-group-item d-flex justify-content-between align-items-center mb-2 rounded-3 border-0 p-2" style="background-color: var(--tg-theme-section-bg-color);">
                 <div>
                   <div class="d-flex align-items-baseline gap-2 mb-1">
                     <strong>{{ $surah->number }}. {{ $surah->name_latin }}</strong>
