@@ -4,9 +4,9 @@ namespace Modules\QuranAndHadits\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Modules\QuranAndHadits\Traits\FileDownloader;
 use Modules\QuranAndHadits\Models\Surah;
 use Modules\QuranAndHadits\Models\Verse;
-use Modules\QuranAndHadits\Traits\FileDownloader;
 use JsonMachine\JsonDecoder\ExtJsonDecoder;
 use JsonMachine\Items;
 
@@ -39,28 +39,40 @@ class FetchQuranData extends Command
   public function handle() {
     $this->info('🚀 Starting Quran data fetch with streaming...');
 
-    $progressBar = $this->output->createProgressBar();
     $tempFile = null;
 
     try {
-      // 1. Unduh file JSON ke temporary file menggunakan trait
-      $tempFile = $this->downloadData($this->url, $progressBar, true, $this->config);
+      // 1. Download data (tanpa progress bar, cukup tampilkan pesan via trait)
+      $tempFile = $this->downloadData($this->url, null, true, $this->config);
       $this->info('✅ File downloaded to: ' . $tempFile);
 
-      // 2. Proses file dengan JSON Machine secara streaming
-      $this->info('📖 Processing JSON stream...');
+      // 2. Hitung total surah untuk progress bar (streaming ringan)
+      $this->info('📊 Counting total surah...');
+      $totalSurahs = 0;
+      $countItems = Items::fromFile($tempFile, ['pointer' => '/quran']);
+      foreach ($countItems as $_) {
+        $totalSurahs++;
+      }
+      $this->info("📊 Total surah found: {$totalSurahs}");
 
-      $items = Items::fromFile($tempFile, [
-        'pointer' => '/quran', // Mulai dari array quran
-        'decoder' => new ExtJsonDecoder(true) // Decode ke array asosiatif
-      ]);
+      // Kosongkan tabel
+      DB::statement("SET FOREIGN_KEY_CHECKS=0");
+      Surah::truncate();
+      Verse::truncate();
+      DB::statement("SET FOREIGN_KEY_CHECKS=1");
 
-      DB::transaction(function () use ($items) {
-        // Kosongkan tabel
-        Surah::truncate();
-        Verse::truncate();
+      // 3. Proses insert dengan progress bar
+      $progressBar = $this->output->createProgressBar($totalSurahs);
+      $progressBar->start();
 
-        $count = 0;
+      DB::transaction(function () use ($tempFile, $progressBar) {
+
+        // Baca file JSON secara streaming
+        $items = Items::fromFile($tempFile, [
+          'pointer' => '/quran',
+          'decoder' => new ExtJsonDecoder(true)
+        ]);
+
         foreach ($items as $surahData) {
           // Simpan surah
           $surah = Surah::create([
@@ -83,21 +95,20 @@ class FetchQuranData extends Command
               'arabic_text' => $verseData['arabic_text'],
               'latin_text' => $verseData['latin_text'] ?? null,
               'translation' => $verseData['translation'] ?? null,
-              'audio' => $verseData['audio'] ?? [],
+              'audio' => json_encode($verseData['audio'] ?? []),
               'created_at' => now(),
               'updated_at' => now(),
             ];
           }
           Verse::insert($verses);
 
-          $count++;
-          if ($count % 10 == 0) {
-            $this->info("Processed {$count} surahs...");
-          }
+          // Update progress bar
+          $progressBar->advance();
         }
-        $this->info("✅ Processed total {$count} surahs.");
       });
 
+      $progressBar->finish();
+      $this->newLine();
       $this->info('🎉 Quran data stored successfully!');
 
     } catch (\Exception $e) {
@@ -108,7 +119,7 @@ class FetchQuranData extends Command
       return 1;
     }
 
-    // Hapus file temporary
+    // Bersihkan file temporary
     if ($tempFile && file_exists($tempFile)) {
       $this->cleanupTempFile($tempFile);
     }
