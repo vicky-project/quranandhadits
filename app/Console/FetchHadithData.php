@@ -21,6 +21,8 @@ class FetchHadithData extends Command
   protected $type = 'hadith';
   protected $config = [];
 
+  protected $chunkSize = 500;
+
   public function __construct() {
     parent::__construct();
     $this->config = [
@@ -74,9 +76,11 @@ class FetchHadithData extends Command
           ]);
 
           // Batch insert hadiths
-          $hadiths = [];
+          $hadithBuffer = [];
+          $hadithCount = 0;
+
           foreach ($bookData['hadiths'] as $hadithData) {
-            $hadiths[] = [
+            $hadithBuffer[] = [
               'book_id' => $book->id,
               'number' => $hadithData['number'],
               'arabic' => $hadithData['arabic'],
@@ -84,8 +88,19 @@ class FetchHadithData extends Command
               'created_at' => now(),
               'updated_at' => now(),
             ];
+
+            $hadithCount++;
+
+            if ($hadithCount % $this->chunkSize === 0) {
+              Hadith::insert($hadithBuffer);
+              $hadithBuffer = [];
+            }
           }
-          Hadith::insert($hadiths);
+
+          if (!empty($hadithBuffer)) {
+            Hadith::insert($hadithBuffer);
+            $hadithBuffer = [];
+          }
 
           $progressBar->advance();
         }
