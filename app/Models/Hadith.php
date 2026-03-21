@@ -12,6 +12,6 @@ class Hadith extends Model
     'translation'];
 
   public function book() {
-    return $this->belongsTo(HadithBook::class);
+    return $this->belongsTo(HadithBook::class, 'book_id');
   }
 }
