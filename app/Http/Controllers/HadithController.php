@@ -22,7 +22,7 @@ class HadithController extends Controller
     ->paginate(10);
     $book->setRelation("hadiths", $hadiths);
 
-    dd($book);
+    dd($book, $hadiths);
     $hadiths = Hadith::where('book_id', $book->id)
     ->orderBy('number')
     ->get();
