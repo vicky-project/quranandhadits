@@ -25,6 +25,8 @@ class FetchHadithData extends Command
 
   public function __construct() {
     parent::__construct();
+    ini_set('memory_limit', '512M');
+
     $this->config = [
       'command' => $this,
       'max_retries' => 3,
@@ -93,6 +95,7 @@ class FetchHadithData extends Command
 
             if ($hadithCount % $this->chunkSize === 0) {
               Hadith::insert($hadithBuffer);
+              unset($hadithBuffer);
               $hadithBuffer = [];
             }
           }
