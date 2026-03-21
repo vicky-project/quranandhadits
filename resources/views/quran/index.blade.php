@@ -109,12 +109,5 @@
   .spinner-border {
     color: var(--tg-theme-button-color) !important;
   }
-  .timeout-option {
-    margin-top: 1rem;
-    font-size: 0.9rem;
-  }
-  #dateDisplay, #coordDisplay {
-    font-size: 0.9rem;
-  }
 </style>
 @endpush
