@@ -94,7 +94,7 @@ class FetchQuranData extends Command
               'arabic_text' => $verseData['arabic_text'],
               'latin_text' => $verseData['latin_text'] ?? null,
               'translation' => $verseData['translation'] ?? null,
-              'audio' => $verseData['audio'] ?? [],
+              'audio' => json_encode($verseData['audio'] ?? []),
               'created_at' => now(),
               'updated_at' => now(),
             ];
