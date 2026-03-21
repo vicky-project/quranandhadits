@@ -32,7 +32,7 @@
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="badge bg-primary">Hadits No. {{ $hadith->number }}</span>
               </div>
-              <div class="arabic-text text-end mb-2" style="font-family: 'Traditional Arabic', 'Amiri', serif; font-size: 1.3rem; line-height: 2rem;">
+              <div class="arabic-text text-end mb-3" style="font-family: 'Traditional Arabic', 'Amiri', serif; font-size: 2.3rem; line-height: 3rem;">
                 {!! $hadith->arabic !!}
               </div>
               <div class="translation">
@@ -55,9 +55,68 @@
 
 @push('styles')
 <style>
+  /* Menggunakan tema Telegram */
+  body {
+    background-color: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+  }
+  .card {
+    background-color: var(--tg-theme-secondary-bg-color);
+    border: none;
+  }
+  .card-header {
+    background-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    border-bottom: none;
+  }
+  .btn-primary {
+    background-color: var(--tg-theme-button-color);
+    border-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+  }
+  .btn-outline-primary {
+    color: var(--tg-theme-button-color);
+    border-color: var(--tg-theme-button-color);
+  }
+  .btn-outline-primary:hover {
+    background-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+  }
+  .btn-outline-secondary {
+    color: var(--tg-theme-hint-color);
+    border-color: var(--tg-theme-hint-color);
+  }
+  .btn-outline-secondary:hover {
+    background-color: var(--tg-theme-hint-color);
+    color: var(--tg-theme-button-text-color);
+  }
+  .text-muted {
+    color: var(--tg-theme-hint-color) !important;
+  }
+  .table {
+    color: var(--tg-theme-text-color);
+  }
+  .table-hover tbody tr:hover {
+    background-color: var(--tg-theme-section-separator-color);
+  }
+  .table td, .table th {
+    border-color: var(--tg-theme-section-separator-color);
+  }
+  .spinner-border {
+    color: var(--tg-theme-button-color) !important;
+  }
   .arabic-text {
-    font-size: 1.3rem !important;
-    line-height: 2rem !important;
+    font-size: 2.3rem !important;
+    line-height: 3rem !important;
+  }
+  /* Styling untuk tombol clear */
+  #clearSearch {
+    z-index: 10;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  #clearSearch:hover {
+    opacity: 1;
   }
 </style>
 @endpush

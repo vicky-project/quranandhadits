@@ -1,5 +1,4 @@
 <?php
-
 namespace Modules\QuranAndHadits\Providers;
 
 use Illuminate\Support\Facades\Blade;
@@ -7,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Illuminate\Pagination\Paginator;
 
 class QuranAndHaditsServiceProvider extends ServiceProvider
 {
@@ -41,6 +41,8 @@ class QuranAndHaditsServiceProvider extends ServiceProvider
     ) {
       $this->registerHadithsHooks($class);
     }
+
+    Paginator::useBootstrapFive();
   }
 
   /**
