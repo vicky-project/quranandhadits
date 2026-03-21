@@ -1,13 +1,13 @@
 @extends('coreui::layouts.mini-app')
-@section('title', $surah->name_latin)
+@section('title', $book->name)
 
 @section('content')
 <div class="container py-3">
   <div class="row justify-content-center mb-3">
     <div class="col-md-12">
       <div class="d-flex justify-content-between align-items-center">
-        <a href="{{ route('apps.quran.index') }}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-2"></i>Daftar Surah
+        <a href="{{ route('apps.hadith.index') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-2"></i>Daftar Kitab
         </a>
       </div>
     </div>
@@ -16,33 +16,32 @@
     <div class="col-md-8 col-lg-6">
       <div class="card shadow">
         <div class="card-header bg-primary text-white">
-          <h4 class="mb-0">{{ $surah->number }}. {{ $surah->name_latin }}</h4>
-          <small>{{ $surah->name }} • {{ $surah->meaning }} • {{ $surah->number_of_verses }} ayat</small>
+          <h4 class="mb-0">{{ $book->name }}</h4>
+          <small>Total {{ $book->total_hadiths }} hadits</small>
         </div>
         <div class="card-body">
           <div class="position-relative mb-3">
-            <input type="text" id="searchVerse" class="form-control" placeholder="Cari ayat...">
-            <button id="clearSearchVerse" class="btn btn-link position-absolute end-0 top-0 text-muted d-none" style="padding: 0.375rem 0.75rem;">
+            <input type="text" id="searchHadith" class="form-control" placeholder="Cari hadits...">
+            <button id="clearSearch" class="btn btn-link position-absolute end-0 top-0 text-muted d-none" style="padding: 0.375rem 0.75rem;">
               <i class="bi bi-x-lg"></i>
             </button>
           </div>
-          <div id="versesList">
-            @foreach($verses as $verse)
-            <div class="verse-item mb-4 p-3 rounded-3" style="background-color: var(--tg-theme-section-bg-color);">
+          <div id="hadithList">
+            @foreach($hadiths as $hadith)
+            <div class="hadith-item mb-4 p-3 rounded-3" style="background-color: var(--tg-theme-section-bg-color);">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge bg-primary">{{ $verse->verse_number }}</span>
+                <span class="badge bg-primary">Hadits No. {{ $hadith->number }}</span>
               </div>
-              <div class="arabic-text text-end mb-3" style="font-family: 'Traditional Arabic', 'Amiri', serif; font-size: 1.6rem; line-height: 2rem;">
-                {!! $verse->arabic_text !!}
+              <div class="arabic-text text-end mb-3" style="font-family: 'Traditional Arabic', 'Amiri', serif; font-size: 1.3rem; line-height: 2rem;">
+                <div class="arabic-text text-end mb-3" style="font-family: 'Traditional Arabic', 'Amiri', serif; font-size: 1.3rem; line-height: 2rem;">
+                  {!! $hadith->arabic !!}
+                </div>
+                <div class="translation">
+                  <i class="bi bi-chat-quote"></i> {{ $hadith->translation }}
+                </div>
               </div>
-              <div class="latin-text text-muted mb-2">
-                {{ $verse->latin_text }}
-              </div>
-              <div class="translation">
-                <i class="bi bi-chat-quote"></i> {{ $verse->translation }}
-              </div>
+              @endforeach
             </div>
-            @endforeach
           </div>
         </div>
       </div>
@@ -104,16 +103,16 @@
     color: var(--tg-theme-button-color) !important;
   }
   .arabic-text {
-    font-size: 2.6rem !important;
+    font-size: 2.3rem !important;
     line-height: 3rem !important;
   }
   /* Styling untuk tombol clear */
-  #clearSearchVerse {
+  #clearSearch {
     z-index: 10;
     opacity: 0.7;
     transition: opacity 0.2s;
   }
-  #clearSearchVerse:hover {
+  #clearSearch:hover {
     opacity: 1;
   }
 </style>
@@ -121,23 +120,23 @@
 
 @push('scripts')
 <script>
-  const searchInput = document.getElementById('searchVerse');
-  const clearButton = document.getElementById('clearSearchVerse');
+  const searchInput = document.getElementById('searchHadith');
+  const clearButton = document.getElementById('clearSearch');
+  const hadithList = document.getElementById('hadithList');
 
-  function filterVerse() {
-    let filter = searchInput.value.toLowerCase();
-    document.querySelectorAll('.verse-item').forEach(item => {
-    let text = item.innerText.toLowerCase();
+  function filterHadith() {
+    const filter = searchInput.value.toLowerCase();
+    document.querySelectorAll('.hadith-item').forEach(item => {
+    const text = item.innerText.toLowerCase();
     item.style.display = text.includes(filter) ? '' : 'none';
     });
-    // Toggle clear button visibility
     clearButton.classList.toggle('d-none', searchInput.value === '');
   }
 
-  searchInput.addEventListener('keyup', filterVerse);
+  searchInput.addEventListener('keyup', filterHadith);
   clearButton.addEventListener('click', () => {
   searchInput.value = '';
-  filterVerse();
+  filterHadith();
   searchInput.focus();
   });
 </script>
