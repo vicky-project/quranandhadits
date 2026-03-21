@@ -42,12 +42,6 @@ trait FileDownloader
     while ($retryCount <= $config["max_retries"]) {
       try {
         $tempFilePath = $this->createTempFile();
-        if ($progressBar) {
-          $progressBar->setProgress(0);
-          $progressBar->setMaxSteps(0);
-          $progressBar->setMessage("Starting download...");
-          $progressBar->start();
-        }
         $this->executeDownload($url, $tempFilePath, $config);
         $this->validateDownload($tempFilePath, $config["min_file_size"]);
 
