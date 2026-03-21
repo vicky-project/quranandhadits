@@ -1,0 +1,118 @@
+<?php
+
+namespace Modules\QuranAndHadits\Console;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Modules\QuranAndHadits\Models\Surah;
+use Modules\QuranAndHadits\Models\Verse;
+use Modules\QuranAndHadits\Traits\FileDownloader;
+use JsonMachine\JsonDecoder\ExtJsonDecoder;
+use JsonMachine\Items;
+
+class FetchQuranData extends Command
+{
+  use FileDownloader;
+
+  protected $signature = 'app:quran';
+  protected $description = 'Fetch Quran data from JSON and store in database using streaming';
+
+  protected $url = 'https://vickyserver.my.id/data/quran/quran_data.json';
+  protected $type = 'quran';
+  protected $config = [];
+
+  public function __construct() {
+    parent::__construct();
+    $this->config = [
+      'command' => $this,
+      'max_retries' => 3,
+      'http_timeout' => 600,
+      // 10 menit untuk download file besar
+      'min_file_size' => 1024,
+      'retry_delay' => 1000,
+      'connect_timeout' => 30,
+      'verify_ssl' => true,
+      'http_headers' => [],
+    ];
+  }
+
+  public function handle() {
+    $this->info('🚀 Starting Quran data fetch with streaming...');
+
+    $progressBar = $this->output->createProgressBar();
+    $tempFile = null;
+
+    try {
+      // 1. Unduh file JSON ke temporary file menggunakan trait
+      $tempFile = $this->downloadData($this->url, $progressBar, true, $this->config);
+      $this->info('✅ File downloaded to: ' . $tempFile);
+
+      // 2. Proses file dengan JSON Machine secara streaming
+      $this->info('📖 Processing JSON stream...');
+
+      $items = Items::fromFile($tempFile, [
+        'pointer' => '/quran', // Mulai dari array quran
+        'decoder' => new ExtJsonDecoder(true) // Decode ke array asosiatif
+      ]);
+
+      DB::transaction(function () use ($items) {
+        // Kosongkan tabel
+        Surah::truncate();
+        Verse::truncate();
+
+        $count = 0;
+        foreach ($items as $surahData) {
+          // Simpan surah
+          $surah = Surah::create([
+            'number' => $surahData['number'],
+            'name' => $surahData['name'],
+            'name_latin' => $surahData['name_latin'],
+            'number_of_verses' => $surahData['number_of_verses'],
+            'place' => $surahData['place'] ?? null,
+            'meaning' => $surahData['meaning'] ?? null,
+            'description' => $surahData['description'] ?? null,
+            'audio_full' => $surahData['audio_full'] ?? [],
+          ]);
+
+          // Batch insert ayat
+          $verses = [];
+          foreach ($surahData['verses'] as $verseData) {
+            $verses[] = [
+              'surah_id' => $surah->id,
+              'verse_number' => $verseData['verse_number'],
+              'arabic_text' => $verseData['arabic_text'],
+              'latin_text' => $verseData['latin_text'] ?? null,
+              'translation' => $verseData['translation'] ?? null,
+              'audio' => $verseData['audio'] ?? [],
+              'created_at' => now(),
+              'updated_at' => now(),
+            ];
+          }
+          Verse::insert($verses);
+
+          $count++;
+          if ($count % 10 == 0) {
+            $this->info("Processed {$count} surahs...");
+          }
+        }
+        $this->info("✅ Processed total {$count} surahs.");
+      });
+
+      $this->info('🎉 Quran data stored successfully!');
+
+    } catch (\Exception $e) {
+      $this->error('❌ Error: ' . $e->getMessage());
+      if ($tempFile && file_exists($tempFile)) {
+        $this->cleanupTempFile($tempFile);
+      }
+      return 1;
+    }
+
+    // Hapus file temporary
+    if ($tempFile && file_exists($tempFile)) {
+      $this->cleanupTempFile($tempFile);
+    }
+
+    return 0;
+  }
+}
