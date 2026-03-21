@@ -27,6 +27,14 @@ class QuranAndHaditsServiceProvider extends ServiceProvider
     $this->registerConfig();
     $this->registerViews();
     $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+
+    // Quran hook main apps
+    if (
+      config($this->nameLower . ".hook.quran.enabled", false) &&
+      class_exists($class = config($this->nameLower . ".hook.service"))
+    ) {
+      $this->registerQuranHooks($class);
+    }
   }
 
   /**
@@ -36,6 +44,14 @@ class QuranAndHaditsServiceProvider extends ServiceProvider
   {
     $this->app->register(EventServiceProvider::class);
     $this->app->register(RouteServiceProvider::class);
+  }
+
+  protected function registerQuranHooks($hookService): void
+  {
+    $hookService::registerHook(
+      config($this->nameLower . ".hook.quran.name"),
+      $this->nameLower."::hooks.quran-app"
+    );
   }
 
   /**
