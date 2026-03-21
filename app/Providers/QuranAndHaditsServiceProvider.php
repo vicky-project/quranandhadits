@@ -31,7 +31,7 @@ class QuranAndHaditsServiceProvider extends ServiceProvider
     // Quran hook main apps
     if (
       config($this->nameLower . ".hook.quran.enabled", false) &&
-      class_exists($class = config($this->nameLower . ".hook.service"))
+      class_exists($class = config($this->nameLower . ".hook.quran service"))
     ) {
       $this->registerQuranHooks($class);
     }
