@@ -19,13 +19,10 @@ class HadithController extends Controller
     ->hadiths()
     ->select("number", "arabic", "translation")
     ->orderBy("number")
-    ->paginate(10);
+    ->paginate(10)
+    ->withQueryString();
     $book->setRelation("hadiths", $hadiths);
 
-    dd($book, $hadiths);
-    $hadiths = Hadith::where('book_id', $book->id)
-    ->orderBy('number')
-    ->get();
     return view('quranandhadits::hadith.show', compact('book', 'hadiths'));
   }
 
