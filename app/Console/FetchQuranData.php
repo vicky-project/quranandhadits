@@ -55,16 +55,17 @@ class FetchQuranData extends Command
       }
       $this->info("📊 Total surah found: {$totalSurahs}");
 
+      // Kosongkan tabel
+      DB::statement("SET FOREIGN_KEY_CHECKS=0");
+      Surah::truncate();
+      Verse::truncate();
+      DB::statement("SET FOREIGN_KEY_CHECKS=1");
+
       // 3. Proses insert dengan progress bar
       $progressBar = $this->output->createProgressBar($totalSurahs);
       $progressBar->start();
 
       DB::transaction(function () use ($tempFile, $progressBar) {
-        // Kosongkan tabel
-        DB::statement("SET FOREIGN_KEY_CHECKS=0");
-        Surah::truncate();
-        Verse::truncate();
-        DB::statement("SET FOREIGN_KEY_CHECKS=1");
 
         // Baca file JSON secara streaming
         $items = Items::fromFile($tempFile, [
