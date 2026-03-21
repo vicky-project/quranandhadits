@@ -15,9 +15,28 @@ class HadithController extends Controller
 
   public function show($slug) {
     $book = HadithBook::where('slug', $slug)->firstOrFail();
+    $hadiths = $book
+    ->hadiths()
+    ->select("number", "arabic", "translation")
+    ->orderBy("number")
+    ->paginate(10);
+    $book->setRelation("hadiths", $hadiths);
+
+    dd($book);
     $hadiths = Hadith::where('book_id', $book->id)
     ->orderBy('number')
     ->get();
     return view('quranandhadits::hadith.show', compact('book', 'hadiths'));
+  }
+
+  /**
+  * Get pagination parameters from request
+  */
+  protected function getPaginationParams(Request $request): array
+  {
+    return [
+      "page" => $request->input("page", 1),
+      "per_page" => $request->input("per_page", 10),
+    ];
   }
 }
