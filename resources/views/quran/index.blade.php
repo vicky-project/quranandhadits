@@ -19,15 +19,23 @@
           <h4 class="mb-0"><i class="bi bi-book me-2"></i>Daftar Surah</h4>
         </div>
         <div class="card-body">
-          <input type="text" id="searchSurah" class="form-control mb-3" placeholder="Cari surah...">
+          <div class="position-relative mb-3">
+            <input type="text" id="searchSurah" class="form-control" placeholder="Cari surah...">
+            <button id="clearSearchSurah" class="btn btn-link position-absolute end-0 top-0 text-muted d-none" style="padding: 0.375rem 0.75rem;">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
           <div id="surahList">
             @foreach($surahs as $surah)
             <a href="{{ route('apps.quran.surah', $surah->number) }}" class="text-decoration-none">
               <div class="list-group-item d-flex justify-content-between align-items-center mb-2 rounded-3 border-0" style="background-color: var(--tg-theme-section-bg-color);">
                 <div>
-                  <strong>{{ $surah->number }}. {{ $surah->name_latin }}</strong>
+                  <div class="d-flex align-items-baseline gap-2 mb-1">
+                    <strong>{{ $surah->number }}. {{ $surah->name_latin }}</strong>
+                    <span class="arabic-name" style="font-family: 'Traditional Arabic', 'Amiri', serif; font-size: 1.1rem;">{{ $surah->name }}</span>
+                  </div>
                   <div class="small text-muted">
-                    {{ $surah->name }} • {{ $surah->meaning }} • {{ $surah->place }}
+                    {{ $surah->meaning }} • {{ $surah->place }}
                   </div>
                 </div>
                 <div class="text-muted">
@@ -44,70 +52,45 @@
 </div>
 @endsection
 
-@push('scripts')
-<script>
-  document.getElementById('searchSurah').addEventListener('keyup', function() {
-  let filter = this.value.toLowerCase();
-  document.querySelectorAll('#surahList > a').forEach(item => {
-  let text = item.querySelector('strong').innerText.toLowerCase();
-  let detail = item.querySelector('.small').innerText.toLowerCase();
-  item.style.display = (text.includes(filter) || detail.includes(filter)) ? '' : 'none';
-  });
-  });
-</script>
-@endpush
-
 @push('styles')
 <style>
-  /* Menggunakan tema Telegram */
-  body {
-    background-color: var(--tg-theme-bg-color);
-    color: var(--tg-theme-text-color);
+  .arabic-name {
+    font-size: 1.2rem;
+    line-height: 1.4;
   }
-  .card {
-    background-color: var(--tg-theme-secondary-bg-color);
-    border: none;
+  /* Styling untuk tombol clear */
+  #clearSearchSurah {
+    z-index: 10;
+    opacity: 0.7;
+    transition: opacity 0.2s;
   }
-  .card-header {
-    background-color: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
-    border-bottom: none;
-  }
-  .btn-primary {
-    background-color: var(--tg-theme-button-color);
-    border-color: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
-  }
-  .btn-outline-primary {
-    color: var(--tg-theme-button-color);
-    border-color: var(--tg-theme-button-color);
-  }
-  .btn-outline-primary:hover {
-    background-color: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
-  }
-  .btn-outline-secondary {
-    color: var(--tg-theme-hint-color);
-    border-color: var(--tg-theme-hint-color);
-  }
-  .btn-outline-secondary:hover {
-    background-color: var(--tg-theme-hint-color);
-    color: var(--tg-theme-button-text-color);
-  }
-  .text-muted {
-    color: var(--tg-theme-hint-color) !important;
-  }
-  .table {
-    color: var(--tg-theme-text-color);
-  }
-  .table-hover tbody tr:hover {
-    background-color: var(--tg-theme-section-separator-color);
-  }
-  .table td, .table th {
-    border-color: var(--tg-theme-section-separator-color);
-  }
-  .spinner-border {
-    color: var(--tg-theme-button-color) !important;
+  #clearSearchSurah:hover {
+    opacity: 1;
   }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+  const searchInput = document.getElementById('searchSurah');
+  const clearButton = document.getElementById('clearSearchSurah');
+
+  function filterSurah() {
+    let filter = searchInput.value.toLowerCase();
+    document.querySelectorAll('#surahList > a').forEach(item => {
+    let text = item.querySelector('strong').innerText.toLowerCase();
+    let details = item.querySelector('.small').innerText.toLowerCase();
+    item.style.display = (text.includes(filter) || details.includes(filter)) ? '' : 'none';
+    });
+    // Toggle clear button visibility
+    clearButton.classList.toggle('d-none', searchInput.value === '');
+  }
+
+  searchInput.addEventListener('keyup', filterSurah);
+  clearButton.addEventListener('click', () => {
+  searchInput.value = '';
+  filterSurah();
+  searchInput.focus();
+  });
+</script>
 @endpush
