@@ -104,8 +104,8 @@
     color: var(--tg-theme-button-color) !important;
   }
   .arabic-text {
-    font-size: 1.6rem !important;
-    line-height: 2rem !important;
+    font-size: 2.6rem !important;
+    line-height: 3rem !important;
   }
   /* Styling untuk tombol clear */
   #clearSearchVerse {
