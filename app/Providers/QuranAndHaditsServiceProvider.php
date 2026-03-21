@@ -35,6 +35,12 @@ class QuranAndHaditsServiceProvider extends ServiceProvider
     ) {
       $this->registerQuranHooks($class);
     }
+    if (
+      config($this->nameLower . ".hook.hadits.enabled", false) &&
+      class_exists($class = config($this->nameLower . ".hook.hadits.service"))
+    ) {
+      $this->registerHadithsHooks($class);
+    }
   }
 
   /**
@@ -54,13 +60,23 @@ class QuranAndHaditsServiceProvider extends ServiceProvider
     );
   }
 
+  protected function registerHadithsHooks($hookService): void
+  {
+    $hookService::registerHook(
+      config($this->nameLower . ".hook.hadits.name"),
+      $this->nameLower."::hooks.hadith-app"
+    );
+  }
+
   /**
   * Register commands in the format of Command::class
   */
   protected function registerCommands(): void
   {
     $this->commands([
-      \Modules\QuranAndHadits\Console\FetchQuranData::class]);
+      \Modules\QuranAndHadits\Console\FetchQuranData::class,
+      \Modules\QuranAndHadits\Console\FetchHadithData::class
+    ]);
   }
 
   /**
