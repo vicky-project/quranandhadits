@@ -4,9 +4,9 @@ namespace Modules\QuranAndHadits\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Cache;
 use Modules\QuranAndHadits\Models\HadithBook;
 use Modules\QuranAndHadits\Models\Hadith;
-use Illuminate\Support\Facades\Cache;
 
 class HadithController extends Controller
 {

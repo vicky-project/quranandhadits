@@ -20,14 +20,17 @@
           <small>{{ $surah->name }} • {{ $surah->meaning }} • {{ $surah->number_of_verses }} ayat</small>
         </div>
         <div class="card-body">
-          <div class="position-relative mb-3">
-            <input type="text" id="searchVerse" class="form-control" placeholder="Cari ayat...">
-            <button id="clearSearchVerse" class="btn btn-link position-absolute end-0 top-0 text-muted d-none" style="padding: 0.375rem 0.75rem;">
-              <i class="bi bi-x-lg"></i>
-            </button>
-          </div>
+          <form method="GET" action="{{ route('apps.quran.surah', $surah->number) }}" class="mb-3">
+            <input type="hidden" name="initData" value="{{ request()->get('initData') }}">
+            <div class="position-relative">
+              <input type="text" name="q" id="searchVerse" class="form-control" placeholder="Cari ayat..." value="{{ $search }}">
+              <button type="button" id="clearSearchVerse" class="btn btn-link position-absolute end-0 top-0 text-muted {{ $search !== '' ? '' : 'd-none'}}" style="padding: 0.375rem 0.75rem;">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </form>
           <div id="versesList">
-            @foreach($verses as $verse)
+            @forelse($verses as $verse)
             <div class="verse-item mb-4 p-3 rounded-3" style="background-color: var(--tg-theme-section-bg-color);">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="badge bg-primary">{{ $verse->verse_number }}</span>
@@ -43,11 +46,34 @@
                 <i class="bi bi-chat-quote"></i> {{ $verse->translation }}
               </div>
             </div>
-            @endforeach
+            @empty
+            <div class="text-center py-4">
+              <i class="bi bi-search text-muted" style="font-size: 2rem;"></i>
+              <p class="text-muted mt-2">
+                Tidak ditemukan ayat yang sesuai.
+              </p>
+            </div>
+            @endforelse
+          </div>
+
+          <!-- Pagination Links -->
+          <div class="d-flex justify-content-center mt-4">
+            {{ $verses->appends(['search' => $search])->links() }}
           </div>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<button id="scrollToTopBtn" class="btn btn-primary rounded-circle shadow" style="position: fixed;bottom: 20px;right: 20px;width: 48px;height: 48px;display: none;align-items: center;justify-content: center;z-index: 1000;">
+  <i class="bi bi-arrow-up fs-5"></i>
+</button>
+
+<!-- Loading Overlay Spinner -->
+<div id="loadingSpinner" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+  <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+    <span class="visually-hidden">Loading...</span>
   </div>
 </div>
 @endsection
@@ -108,14 +134,26 @@
     font-size: 2.3rem !important;
     line-height: 3rem !important;
   }
-  /* Styling untuk tombol clear */
-  #clearSearchVerse {
-    z-index: 10;
-    opacity: 0.7;
+  mark {
+    background-color: #ffeb3b;
+    color: #000;
+    border-radius: 3px;
+    padding: 0 2px;
+  }
+  #scrollToTopBtn {
     transition: opacity 0.2s;
   }
-  #clearSearchVerse:hover {
-    opacity: 1;
+  #scrollToTopBtn:hover {
+    opacity: 0.8;
+  }
+  @media (prefers-color-scheme:dark) {
+    mark {
+      background-color: #ffc107;
+      color: #1a1a1a;
+    }
+  }
+  #loadingSpinner {
+    display: flex;
   }
 </style>
 @endpush
@@ -124,22 +162,60 @@
 <script>
   const searchInput = document.getElementById('searchVerse');
   const clearButton = document.getElementById('clearSearchVerse');
+  const searchForm = searchInput.closest('form');
 
-  function filterVerse() {
-    let filter = searchInput.value.toLowerCase();
-    document.querySelectorAll('.verse-item').forEach(item => {
-    let text = item.innerText.toLowerCase();
-    item.style.display = text.includes(filter) ? '' : 'none';
-    });
-    // Toggle clear button visibility
-    clearButton.classList.toggle('d-none', searchInput.value === '');
+  function toggleClearButton() {
+    if (searchInput.value.trim() !== '') {
+      clearButton.classList.remove('d-none');
+    } else {
+      clearButton.classList.add('d-none');
+    }
   }
 
-  searchInput.addEventListener('keyup', filterVerse);
-  clearButton.addEventListener('click', () => {
-  searchInput.value = '';
-  filterVerse();
-  searchInput.focus();
+  function showSpinner() {
+    spinner.style.display = 'flex';
+  }
+
+  function submitSearch() {
+    showSpinner();
+    searchForm.submit();
+  }
+
+  searchInput.addEventListener('input', toggleClearButton);
+
+  searchInput.addEventListener('keyup', function(e) {
+  toggleClearButton();
+  if(e.key === "Enter") {
+  submitSearch();
+  }
   });
+
+  clearButton.addEventListener('click', function(e) {
+  e.preventDefault();
+  searchInput.value = "";
+  toggleClearButton();
+  submitSearch();
+  });
+
+  const scrollBtn = document.getElementById('scrollToTopBtn');
+  if (scrollBtn) {
+    window.addEventListener('scroll', function() {
+    if(window.scrollY > 300) {
+    scrollBtn.style.display = 'flex';
+    } else {
+    scrollBtn.style.display = 'none';
+    }
+    });
+
+    scrollBtn.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth'});
+    });
+  }
+
+  document.querySelectorAll('.pagination a').forEach(link => {
+  link.addEventListener('click', showSpinner);
+  })
+
+  toggleClearButton();
 </script>
 @endpush
