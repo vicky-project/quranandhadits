@@ -24,7 +24,7 @@
             <input type="hidden" name="initData" value="{{ request()->get('initData') }}">
             <div class="position-relative">
               <input type="text" name="q" id="searchHadith" class="form-control" placeholder="Cari hadits..." value="{{ $search }}">
-              <button type="button" id="clearSearchHadith" class="btn btn-link position-absolute end-0 top-0 text-muted {{ $search !== '' ? 'd-none' : ''}}" style="padding: 0.375rem 0.75rem;background-color: var(--tg-theme-button-color);">
+              <button type="button" id="clearSearchHadith" class="btn btn-link position-absolute end-0 top-0 text-muted {{ $search !== '' ? '' : 'd-none'}}" style="padding: 0.375rem 0.75rem;background-color: var(--tg-theme-button-color);">
                 <i class="bi bi-xl-lg"></i>
               </button>
             </div>
@@ -123,11 +123,11 @@
     font-size: 2.3rem !important;
     line-height: 3rem !important;
   }
-  .highlight {
-    background-color: rgba(255, 235, 59, 0.6);
+  mark {
+    background-color: #ffeb3b;
     color: #000;
-    border-radius: 2px;
-    padding: 0 1px;
+    border-radius: 3px;
+    padding: 0 2px;
   }
   #scrollToTopBtn {
     transition: opacity 0.2s;
@@ -136,8 +136,9 @@
     opacity: 0.8;
   }
   @media (prefers-color-scheme:dark) {
-    .highlight {
-      background-color: rgba(255, 235, 59, 0.4);
+    mark {
+      background-color: #ffc107;
+      color: #1a1a1a;
     }
   }
 </style>
