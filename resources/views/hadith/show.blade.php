@@ -30,10 +30,14 @@
             </div>
           </form>
           @if($search)
-          <div class="d-flex justify-content-center align-items-center text-center mb-4">
-            Menampilkan <strong>{{ $hadiths->count() }}</strong> dari <strong>{{ $hadiths->total() }}</strong> hadiths dengan kata "<strong>{{ $search }}</strong>"
+          <div class="d-flex justify-content-between align-items-center text-center mb-4">
+            <div>
+              Menampilkan <strong>{{ $hadiths->count() }}</strong> dari <strong>{{ $hadiths->total() }}</strong> hadiths dengan kata "<strong>{{ $search }}</strong>"
+            </div>
             @if($hadiths->currentPage() > 1)
-            (halaman {{ $hadiths->currentPage() }} dari {{ $hadiths->lastPage() }})
+            <div>
+              (halaman {{ $hadiths->currentPage() }} dari {{ $hadiths->lastPage() }})
+            </div>
             @endif
           </div>
           @endif
