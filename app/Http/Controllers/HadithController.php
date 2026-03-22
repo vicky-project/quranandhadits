@@ -65,7 +65,7 @@ class HadithController extends Controller
       ];
     });
 
-    return LengthAwarePaginator(
+    return new LengthAwarePaginator(
       $cached["items"],
       $cached["total"],
       $perPage,
