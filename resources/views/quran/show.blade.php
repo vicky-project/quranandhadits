@@ -32,7 +32,7 @@
           @if($search)
           <div class="d-flex justify-content-center align-items-center text-center mb-1">
             <div>
-              Menampilkan <strong>{{ $verses->count() }}</strong> dari <strong>{{ $verses->total() }}</strong> hadiths dengan kata "<strong>{{ $search }}</strong>"
+              Menampilkan <strong>{{ $verses->count() }}</strong> dari <strong>{{ $verses->total() }}</strong> ayat dengan kata "<strong>{{ $search }}</strong>"
             </div>
           </div>
           <div class="d-flex justify-content-center align-items-center text-center mb-4">
