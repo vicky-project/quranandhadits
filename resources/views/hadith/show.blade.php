@@ -161,8 +161,32 @@
     searchForm.submit();
   }
 
-  document.addEventListener("DOMContentLoaded", function() {
-  try {
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchTerm = urlParams.get('q');
+  if (searchTerm && searchTerm.trim() !== '') {
+    const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedTerm})`, 'gi');
+
+    document.querySelectorAll('.hadith-item').forEach(item => {
+    // Arabic text container
+    const arabicDiv = item.querySelector('.arabic-text');
+    if(arabicDiv) {
+    const clone = arabicDiv.cloneNode(true);
+    const originalText = arabicDiv.innerText;
+    const highlighted = originalText.replace(regex, '<mark>$1</mark>');
+    arabicDiv.innerHTML = highlighted;
+    }
+
+    // Translation text
+    const translationDiv = item.querySelector('.translation');
+    if(translationDiv) {
+    const originalText = translationDiv.innerText;
+    const highlighted = originalText.replace(regex, '<mark>$1</mark>');
+    translationDiv.innerHTML = highlighted;
+    }
+    });
+  }
+
   searchInput.addEventListener('input', toggleClearButton);
 
   searchInput.addEventListener('keyup', function(e) {
@@ -181,21 +205,17 @@
 
   const scrollBtn = document.getElementById('scrollToTopBtn');
   if (scrollBtn) {
-  window.addEventListener('scroll', function() {
-  if(window.scrollY > 300) {
-  scrollBtn.style.display = 'flex';
-  } else {
-  scrollBtn.style.display = 'none';
-  }
-  });
+    window.addEventListener('scroll', function() {
+    if(window.scrollY > 300) {
+    scrollBtn.style.display = 'flex';
+    } else {
+    scrollBtn.style.display = 'none';
+    }
+    });
 
-  scrollBtn.addEventListener('click', function() {
-  window.scrollTo({ top: 0, behavior: 'smooth'});
-  });
+    scrollBtn.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth'});
+    });
   }
-  } catch(error) {
-  alert(error.message);
-  }
-  });
 </script>
 @endpush
