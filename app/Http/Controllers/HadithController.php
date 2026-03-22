@@ -48,13 +48,16 @@ class HadithController extends Controller
       $query = Hadith::where('slug', $slug);
       if ($query) {
         $query->where(function($q) use($search) {
-          $query->where('arabic', 'LIKE', "%{$search}%")
+          $q->where('arabic', 'LIKE', "%{$search}%")
           ->orWhere('arabic', 'LIKE', "%{$search}%");
         });
       }
+
       $total = $query->count();
       $items = $query->orderBy("number")
-      ->skip(($page - 1) * $perPage)->take($perPage)->get(["number", "arabic", "translation "]);
+      ->skip(($page - 1) * $perPage)
+      ->take($perPage)
+      ->get(["number", "arabic", "translation "]);
 
       return [
         'items' => $items,
