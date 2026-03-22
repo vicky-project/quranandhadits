@@ -22,17 +22,12 @@
         <div class="card-body">
           <form method="GET" action="{{ route('apps.hadith.show', $book->slug) }}" class="mb-3">
             <input type="hidden" name="initData" value="{{ request()->get('initData') }}">
-            <div class="position-relative mb-3">
-              <input type="text" name="q" id="searchHadith" class="form-control" placeholder="Cari hadits..." value="{{ $search ?? ''}}">
-              <button type="submit" class="btn btn-link position-absolute end-0 top-0 text-muted" style="padding: 0.375rem 0.75rem;z-index: 10;">
-                <i class="bi bi-search"></i>
+            <div class="position-relative">
+              <input type="text" name="q" id="searchHadith" class="form-control" placeholder="Cari hadits..." value="{{ $search }}">
+              <button type="button" id="clearSearch" class="btn btn-link position-absolute end-0 top-0 text-muted d-none" style="padding: 0.375rem 0.75rem;">
+                <i class="bi bi-xl-lg"></i>
               </button>
             </div>
-            @if(request('q'))
-            <a href="{{ route('apps.hadith.show', $book->slug) }}" class="btn btn-sm btn-outline-secondary mt-2">
-              <i class="bi bi-x-lg me-1"></i>Reset
-            </a>
-            @endif
           </form>
           <div id="hadithList">
             @foreach($hadiths as $hadith)
@@ -52,13 +47,17 @@
 
           <!-- Pagination Links -->
           <div class="d-flex justify-content-center mt-4">
-            {{ $hadiths->links() }}
+            {{ $hadiths->appends(['search' => $search)->links() }}
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<button id="scrollToTopBtn" class="btn btn-primary rounded-circle shadow" style="position: fixed;bottom: 20px;right: 20px;width: 48px;height: 48px;display: none;align-items: center;justify-content: center;z-index: 1000;">
+  <i class="bi bi-arrow-up"></i>
+</button>
 @endsection
 
 @push('styles')
@@ -124,6 +123,12 @@
   form btn-link:hover {
     color: var(--tg-theme-text-color);
   }
+  #scrollToTopBtn {
+    transition: opacity 0.2s;
+  }
+  #scrollToTopBtn:hover {
+    opacity: 0.8;
+  }
 </style>
 @endpush
 
@@ -131,21 +136,40 @@
 <script>
   const searchInput = document.getElementById('searchHadith');
   const clearButton = document.getElementById('clearSearch');
+  const searchForm = searchInput.closest('form');
 
-  function filterHadith() {
-    const filter = searchInput.value.toLowerCase();
-    document.querySelectorAll('.hadith-item').forEach(item => {
-    const text = item.innerText.toLowerCase();
-    item.style.display = text.includes(filter) ? '' : 'none';
-    });
+  function toggleClearButton() {
     clearButton.classList.toggle('d-none', searchInput.value === '');
   }
 
-  searchInput.addEventListener('keyup', filterHadith);
-  clearButton.addEventListener('click', () => {
-  searchInput.value = '';
-  filterHadith();
-  searchInput.focus();
+  function submitSearch() {
+    searchForm.submit();
+  }
+
+  searchInput.addEventListener('keyup', function(e) {
+  toggleClearButton();
+  if(e.key === "Enter") {
+  submitSearch();
+  }
+  });
+
+  clearButton.addEventListener('click', function() {
+  searchInput.value === "";
+  toggleClearButton();
+  submitSearch();
+  });
+
+  const scrollBtn = document.getElementById('scrollToTopBtn');
+  window.addEventListener('scroll', function() {
+  if(window.scrollY > 300) {
+  scrollBtn.style.display = 'flex';
+  } else {
+  scrollBtn.style.display = 'flex';
+  }
+  });
+
+  scrollBtn.addEventListener('click', function() {
+  window.scrollTo({ top: 0, behavior: 'smooth'});
   });
 </script>
 @endpush
