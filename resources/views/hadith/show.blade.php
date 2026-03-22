@@ -1,8 +1,6 @@
 @extends('coreui::layouts.mini-app')
 @section('title', $book->name)
 
-@use('Modules\QuranAndHadits\Helpers\Helper')
-
 @section('content')
 <div class="container py-3">
   <div class="row justify-content-center mb-3">
@@ -38,10 +36,10 @@
                 <span class="badge bg-primary">Hadits No. {{ $hadith->number }}</span>
               </div>
               <div class="arabic-text text-end mb-3" style="font-family: 'Traditional Arabic', 'Amiri', serif; font-size: 2.3rem; line-height: 3rem;">
-                {!! Helper::highlightText($hadith->arabic, $search) !!}
+                {!! $hadith->arabic !!}
               </div>
               <div class="translation">
-                <i class="bi bi-chat-quote"></i> {{ Helper::highlightText($hadith->translation, $search) }}
+                <i class="bi bi-chat-quote"></i> {{ $hadith->translation }}
               </div>
             </div>
             @empty
@@ -152,7 +150,11 @@
   const searchForm = searchInput.closest('form');
 
   function toggleClearButton() {
-    clearButton.classList.toggle('d-none', searchInput.value === '');
+    if (searchInput.value.trim() !== '') {
+      clearButton.classList.remove('d-none');
+    } else {
+      clearButton.classList.add('d-none');
+    }
   }
 
   function submitSearch() {
@@ -167,11 +169,14 @@
   }
   });
 
-  clearButton.addEventListener('click', function() {
+  clearButton.addEventListener('click', function(e) {
+  e.preventDefault();
   searchInput.value === "";
   toggleClearButton();
   submitSearch();
   });
+
+  toggleClearButton();
 
   const scrollBtn = document.getElementById('scrollToTopBtn');
   if (scrollBtn) {
