@@ -24,7 +24,7 @@
             <input type="hidden" name="initData" value="{{ request()->get('initData') }}">
             <div class="position-relative">
               <input type="text" name="q" id="searchHadith" class="form-control" placeholder="Cari hadits..." value="{{ $search }}">
-              <button type="button" id="clearSearchHadith" class="btn btn-link position-absolute end-0 top-0 text-muted {{ request('search') ? '' : 'd-none' }}" style="padding: 0.375rem 0.75rem;">
+              <button type="button" id="clearSearchHadith" class="btn btn-link position-absolute end-0 top-0 text-muted d-none" style="padding: 0.375rem 0.75rem;">
                 <i class="bi bi-xl-lg"></i>
               </button>
             </div>
@@ -146,7 +146,7 @@
 @push('scripts')
 <script>
   const searchInput = document.getElementById('searchHadith');
-  const clearButton = document.getElementById('clearSearch');
+  const clearButton = document.getElementById('clearSearchHadith');
   const searchForm = searchInput.closest('form');
 
   function toggleClearButton() {
@@ -171,7 +171,7 @@
 
   clearButton.addEventListener('click', function(e) {
   e.preventDefault();
-  searchInput.value === "";
+  searchInput.value = "";
   toggleClearButton();
   submitSearch();
   });
