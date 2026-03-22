@@ -20,12 +20,19 @@
           <small>Total {{ $book->total_hadiths }} hadits</small>
         </div>
         <div class="card-body">
-          <div class="position-relative mb-3">
-            <input type="text" id="searchHadith" class="form-control" placeholder="Cari hadits...">
-            <button id="clearSearch" class="btn btn-link position-absolute end-0 top-0 text-muted d-none" style="padding: 0.375rem 0.75rem;">
-              <i class="bi bi-x-lg"></i>
-            </button>
-          </div>
+          <form method="GET" action="{{ route('apps.hadith.show', $book->slug) }}" class="mb-3">
+            <div class="position-relative mb-3">
+              <input type="text" name="q" id="searchHadith" class="form-control" placeholder="Cari hadits..." value="{{ $search ?? ''}}">
+              <button type="submit" class="btn btn-link position-absolute end-0 top-0 text-muted" style="padding: 0.375rem 0.75rem;z-index: 10;">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+            @if(request('q'))
+            <a href="{{ route('apps.hadith.show', $book->slug) }}" class="btn btn-sm btn-outline-secondary mt-2">
+              <i class="bi bi-x-lg me-1"></i>Reset
+            </a>
+            @endif
+          </form>
           <div id="hadithList">
             @foreach($hadiths as $hadith)
             <div class="hadith-item mb-4 p-3 rounded-3" style="background-color: var(--tg-theme-section-bg-color);">
@@ -109,14 +116,12 @@
     font-size: 2.3rem !important;
     line-height: 3rem !important;
   }
-  /* Styling untuk tombol clear */
-  #clearSearch {
-    z-index: 10;
-    opacity: 0.7;
-    transition: opacity 0.2s;
+  form .btn-link {
+    text-decoration: none;
+    color: var(--tg-theme-hint-color);
   }
-  #clearSearch:hover {
-    opacity: 1;
+  form btn-link:hover {
+    color: var(--tg-theme-text-color);
   }
 </style>
 @endpush
