@@ -20,7 +20,7 @@
           <small>Total {{ $book->total_hadiths }} hadits</small>
         </div>
         <div class="card-body">
-          <form method="GET" action="{{ route('apps.hadith.show', $book->slug) }}" class="mb-3">
+          <form method="GET" action="{{ route('apps.hadith.show', [$book->slug, 'initData' => request()->get('initData')]) }}" class="mb-3">
             <div class="position-relative mb-3">
               <input type="text" name="q" id="searchHadith" class="form-control" placeholder="Cari hadits..." value="{{ $search ?? ''}}">
               <button type="submit" class="btn btn-link position-absolute end-0 top-0 text-muted" style="padding: 0.375rem 0.75rem;z-index: 10;">
