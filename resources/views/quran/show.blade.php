@@ -163,6 +163,7 @@
   const searchInput = document.getElementById('searchVerse');
   const clearButton = document.getElementById('clearSearchVerse');
   const searchForm = searchInput.closest('form');
+  const spinner = document.getElementById('loadingSpinner');
 
   function toggleClearButton() {
     if (searchInput.value.trim() !== '') {
