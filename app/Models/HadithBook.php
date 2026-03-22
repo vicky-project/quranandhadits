@@ -11,6 +11,6 @@ class HadithBook extends Model
     'total_hadiths'];
 
   public function hadiths() {
-    return $this->hasMany(Hadith::class);
+    return $this->hasMany(Hadith::class, 'book_id', 'id');
   }
 }

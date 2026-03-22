@@ -14,5 +14,8 @@ return [
       "name" => "main-apps",
 
     ]
+  ],
+  "pagination" => [
+    "per_page" => 20
   ]
 ];
