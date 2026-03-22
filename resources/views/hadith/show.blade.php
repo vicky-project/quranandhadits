@@ -30,7 +30,7 @@
             </div>
           </form>
           @if($search)
-          <div class="d-flex justify-content-center align-items-center text-center mb-2">
+          <div class="d-flex justify-content-center align-items-center text-center mb-1">
             <div>
               Menampilkan <strong>{{ $hadiths->count() }}</strong> dari <strong>{{ $hadiths->total() }}</strong> hadiths dengan kata "<strong>{{ $search }}</strong>"
             </div>
@@ -73,8 +73,15 @@
 </div>
 
 <button id="scrollToTopBtn" class="btn btn-primary rounded-circle shadow" style="position: fixed;bottom: 20px;right: 20px;width: 48px;height: 48px;display: none;align-items: center;justify-content: center;z-index: 1000;">
-  <i class="bi bi-arrow-up"></i>
+  <i class="bi bi-arrow-up fs-5"></i>
 </button>
+
+<!-- Loading Overlay Spinner -->
+<div id="loadingSpinner" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+  <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
 @endsection
 
 @push('styles')
@@ -151,6 +158,9 @@
       color: #1a1a1a;
     }
   }
+  #loadingSpinner {
+    display: flex;
+  }
 </style>
 @endpush
 
@@ -159,6 +169,7 @@
   const searchInput = document.getElementById('searchHadith');
   const clearButton = document.getElementById('clearSearchHadith');
   const searchForm = searchInput.closest('form');
+  const spinner = document.getElementById('loadingSpinner');
 
   function toggleClearButton() {
     if (searchInput.value.trim() !== '') {
@@ -168,7 +179,12 @@
     }
   }
 
+  function showSpinner() {
+    spinner.style.display = 'flex';
+  }
+
   function submitSearch() {
+    showSpinner();
     searchForm.submit();
   }
 
@@ -228,5 +244,9 @@
     window.scrollTo({ top: 0, behavior: 'smooth'});
     });
   }
+
+  document.querySelectorAll('.pagination a').forEach(link => {
+  link.addEventListener('click', showSpinner);
+  })
 </script>
 @endpush
