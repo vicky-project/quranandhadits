@@ -161,6 +161,8 @@
     searchForm.submit();
   }
 
+  document.addEventListener("DOMContentLoaded", function() {
+  try {
   searchInput.addEventListener('input', toggleClearButton);
 
   searchInput.addEventListener('keyup', function(e) {
@@ -179,17 +181,21 @@
 
   const scrollBtn = document.getElementById('scrollToTopBtn');
   if (scrollBtn) {
-    window.addEventListener('scroll', function() {
-    if(window.scrollY > 300) {
-    scrollBtn.style.display = 'flex';
-    } else {
-    scrollBtn.style.display = 'flex';
-    }
-    });
-
-    scrollBtn.addEventListener('click', function() {
-    window.scrollTo({ top: 0, behavior: 'smooth'});
-    });
+  window.addEventListener('scroll', function() {
+  if(window.scrollY > 300) {
+  scrollBtn.style.display = 'flex';
+  } else {
+  scrollBtn.style.display = 'none';
   }
+  });
+
+  scrollBtn.addEventListener('click', function() {
+  window.scrollTo({ top: 0, behavior: 'smooth'});
+  });
+  }
+  } catch(error) {
+  alert(error.message);
+  }
+  });
 </script>
 @endpush
