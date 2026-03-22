@@ -47,7 +47,7 @@
 
           <!-- Pagination Links -->
           <div class="d-flex justify-content-center mt-4">
-            {{ $hadiths->appends(['search' => $search)->links() }}
+            {{ $hadiths->appends(['search' => $search])->links() }}
           </div>
         </div>
       </div>
