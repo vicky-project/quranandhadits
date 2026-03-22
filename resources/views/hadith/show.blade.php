@@ -41,7 +41,7 @@
                 {!! Helper::highlightText($hadith->arabic, $search) !!}
               </div>
               <div class="translation">
-                <i class="bi bi-chat-quote"></i> {{ He::highlightText($hadith->translation, $search) }}
+                <i class="bi bi-chat-quote"></i> {{ Helper::highlightText($hadith->translation, $search) }}
               </div>
             </div>
             @empty
