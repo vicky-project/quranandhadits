@@ -32,7 +32,8 @@
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="badge bg-primary">{{ $verse->verse_number }}</span>
               </div>
-              <div class="arabic-text text-end mb-3" style="font-family: 'Traditional Arabic', 'Amiri', serif; font-size: 1.6rem; line-height: 2rem;">
+              <div class="arabic-text text-end mb-3" style="font-family: 'Traditional Arabic', 'Amiri', serif; font-size: 2.3rem; line-height: 2
+                3rem;">
                 {!! $verse->arabic_text !!}
               </div>
               <div class="latin-text text-muted mb-2">
@@ -104,7 +105,7 @@
     color: var(--tg-theme-button-color) !important;
   }
   .arabic-text {
-    font-size: 2.6rem !important;
+    font-size: 2.3rem !important;
     line-height: 3rem !important;
   }
   /* Styling untuk tombol clear */
