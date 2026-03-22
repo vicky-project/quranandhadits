@@ -1,6 +1,8 @@
 @extends('coreui::layouts.mini-app')
 @section('title', $book->name)
 
+@use('Modules\QuranAndHadits\Helpers\Helper')
+
 @section('content')
 <div class="container py-3">
   <div class="row justify-content-center mb-3">
@@ -24,25 +26,32 @@
             <input type="hidden" name="initData" value="{{ request()->get('initData') }}">
             <div class="position-relative">
               <input type="text" name="q" id="searchHadith" class="form-control" placeholder="Cari hadits..." value="{{ $search }}">
-              <button type="button" id="clearSearch" class="btn btn-link position-absolute end-0 top-0 text-muted d-none" style="padding: 0.375rem 0.75rem;">
+              <button type="button" id="clearSearchHadith" class="btn btn-link position-absolute end-0 top-0 text-muted {{ request('search') ? '' : 'd-none' }}" style="padding: 0.375rem 0.75rem;">
                 <i class="bi bi-xl-lg"></i>
               </button>
             </div>
           </form>
           <div id="hadithList">
-            @foreach($hadiths as $hadith)
+            @forelse($hadiths as $hadith)
             <div class="hadith-item mb-4 p-3 rounded-3" style="background-color: var(--tg-theme-section-bg-color);">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="badge bg-primary">Hadits No. {{ $hadith->number }}</span>
               </div>
               <div class="arabic-text text-end mb-3" style="font-family: 'Traditional Arabic', 'Amiri', serif; font-size: 2.3rem; line-height: 3rem;">
-                {!! $hadith->arabic !!}
+                {!! Helper::highlightText($hadith->arabic, $search) !!}
               </div>
               <div class="translation">
-                <i class="bi bi-chat-quote"></i> {{ $hadith->translation }}
+                <i class="bi bi-chat-quote"></i> {{ He::highlightText($hadith->translation, $search) }}
               </div>
             </div>
-            @endforeach
+            @empty
+            <div class="text-center py-4">
+              <i class="bi bi-search text-muted" style="font-size: 2rem;"></i>
+              <p class="text-muted mt-2">
+                Tidak ditemukan hadits yang sesuai.
+              </p>
+            </div>
+            @endforelse
           </div>
 
           <!-- Pagination Links -->
@@ -116,18 +125,22 @@
     font-size: 2.3rem !important;
     line-height: 3rem !important;
   }
-  form .btn-link {
-    text-decoration: none;
-    color: var(--tg-theme-hint-color);
-  }
-  form btn-link:hover {
-    color: var(--tg-theme-text-color);
+  .highlight {
+    background-color: rgba(255, 235, 59, 0.6);
+    color: #000;
+    border-radius: 2px;
+    padding: 0 1px;
   }
   #scrollToTopBtn {
     transition: opacity 0.2s;
   }
   #scrollToTopBtn:hover {
     opacity: 0.8;
+  }
+  @media (prefers-color-scheme:dark) {
+    .highlight {
+      background-color: rgba(255, 235, 59, 0.4);
+    }
   }
 </style>
 @endpush
@@ -146,8 +159,9 @@
     searchForm.submit();
   }
 
+  searchInput.addEventListener('input', toggleClearButton);
+
   searchInput.addEventListener('keyup', function(e) {
-  toggleClearButton();
   if(e.key === "Enter") {
   submitSearch();
   }
@@ -160,16 +174,18 @@
   });
 
   const scrollBtn = document.getElementById('scrollToTopBtn');
-  window.addEventListener('scroll', function() {
-  if(window.scrollY > 300) {
-  scrollBtn.style.display = 'flex';
-  } else {
-  scrollBtn.style.display = 'flex';
-  }
-  });
+  if (scrollBtn) {
+    window.addEventListener('scroll', function() {
+    if(window.scrollY > 300) {
+    scrollBtn.style.display = 'flex';
+    } else {
+    scrollBtn.style.display = 'flex';
+    }
+    });
 
-  scrollBtn.addEventListener('click', function() {
-  window.scrollTo({ top: 0, behavior: 'smooth'});
-  });
+    scrollBtn.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth'});
+    });
+  }
 </script>
 @endpush
