@@ -22,7 +22,7 @@ class HadithController extends Controller
     $search = $request->get("q", "");
     $perPage = config("quranandhadits.pagination.per_page", 20);
 
-    $hadiths = $this->getCachedHadiths($book->slug, $page, $perPage, $search);
+    $hadiths = $this->getCachedHadiths($book->id, $page, $perPage, $search);
 
     return view('quranandhadits::hadith.show', compact('book', 'hadiths', 'search'));
   }
@@ -31,21 +31,21 @@ class HadithController extends Controller
   * Get pagination parameters from request
   */
   protected function getCachedHadiths(
-    string $slug,
+    string $bookId,
     int $page,
     int $perPage = 20,
     string $search = ""
   ): LengthAwarePaginator
   {
-    $cacheKey = "hadiths_book_{$slug}_page_{$page}_search_" . md5($search) . "per_{$perPage}";
+    $cacheKey = "hadiths_book_{$bookId}_page_{$page}_search_" . md5($search) . "per_{$perPage}";
 
     $cached = Cache::remember($cacheKey, now()->addDays(), function() use(
-      $slug,
+      $bookId,
       $page,
       $perPage,
       $search
     ) {
-      $query = Hadith::where('slug', $slug);
+      $query = Hadith::where('book_id', $bookId);
       if ($query) {
         $query->where(function($q) use($search) {
           $q->where('arabic', 'LIKE', "%{$search}%")
