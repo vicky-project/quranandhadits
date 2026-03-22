@@ -248,5 +248,7 @@
   document.querySelectorAll('.pagination a').forEach(link => {
   link.addEventListener('click', showSpinner);
   })
+
+  toggleClearButton();
 </script>
 @endpush
