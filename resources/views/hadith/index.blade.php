@@ -71,6 +71,7 @@
 </script>
 @endpush
 
+@push('styles')
 <style>
   /* Menggunakan tema Telegram */
   body {
@@ -132,3 +133,4 @@
     opacity: 1;
   }
 </style>
+@endpush
