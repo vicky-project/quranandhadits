@@ -202,7 +202,6 @@
     // Arabic text container
     const arabicDiv = item.querySelector('.arabic-text');
     if(arabicDiv) {
-    const clone = arabicDiv.cloneNode(true);
     const originalText = arabicDiv.innerText;
     const highlighted = originalText.replace(regex, '<mark>$1</mark>');
     arabicDiv.innerHTML = highlighted;
