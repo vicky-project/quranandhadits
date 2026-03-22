@@ -181,6 +181,40 @@
     searchForm.submit();
   }
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchTerm = urlParams.get('q');
+  if (searchTerm && searchTerm.trim() !== '') {
+    const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedTerm})`, 'gi');
+
+    document.querySelectorAll('.verse-item').forEach(item => {
+    // Arabic text container
+    const arabicDiv = item.querySelector('.arabic-text');
+    if(arabicDiv) {
+    const clone = arabicDiv.cloneNode(true);
+    const originalText = arabicDiv.innerText;
+    const highlighted = originalText.replace(regex, '<mark>$1</mark>');
+    arabicDiv.innerHTML = highlighted;
+    }
+
+    // Latin text
+    const latinDiv = item.querySelector('.latin-text');
+    if(latinDiv) {
+    const originalText = latinDiv.innerText;
+    const highlighted = originalText.replace(regex, '<mark>$1</mark>');
+    latinDiv.innerHTML = highlighted;
+    }
+
+    // Translation text
+    const translationDiv = item.querySelector('.translation');
+    if(translationDiv) {
+    const originalText = translationDiv.innerText;
+    const highlighted = originalText.replace(regex, '<mark>$1</mark>');
+    translationDiv.innerHTML = highlighted;
+    }
+    });
+  }
+
   searchInput.addEventListener('input', toggleClearButton);
 
   searchInput.addEventListener('keyup', function(e) {

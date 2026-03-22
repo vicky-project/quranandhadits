@@ -25,8 +25,8 @@ class QuranController extends Controller
   public function show(Request $request, $surahNumber) {
     $surah = Surah::where('number', $surahNumber)->firstOrFail();
     $page = $request->get("page", 1);
-    $cacheKey = "verses_surah_{$surah->id}_page_{$page}_search_" . md5($search);
     $search = $request->get("q", "");
+    $cacheKey = "verses_surah_{$surah->id}_page_{$page}_search_" . md5($search);
     $perPage = config('quranandhadits.pagination.per_page', 20);
 
     $verses = Cache::remember($cacheKey, now()->addDays(), function() use(
