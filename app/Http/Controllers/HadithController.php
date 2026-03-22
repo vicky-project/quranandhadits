@@ -49,7 +49,7 @@ class HadithController extends Controller
       if ($query) {
         $query->where(function($q) use($search) {
           $q->where('arabic', 'LIKE', "%{$search}%")
-          ->orWhere('arabic', 'LIKE', "%{$search}%");
+          ->orWhere('translation', 'LIKE', "%{$search}%");
         });
       }
 
@@ -57,7 +57,7 @@ class HadithController extends Controller
       $items = $query->orderBy("number")
       ->skip(($page - 1) * $perPage)
       ->take($perPage)
-      ->get(["number", "arabic", "translation "]);
+      ->get(["number", "arabic", "translation"]);
 
       return [
         'items' => $items,
