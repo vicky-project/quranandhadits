@@ -29,6 +29,14 @@
               </button>
             </div>
           </form>
+          @if($search)
+          <div class="d-flex justify-content-center align-items-center text-center mb-4">
+            Menampilkan <strong>{{ $hadiths->count() }}</strong> dari <strong>{{ $hadiths->total() }}</strong> hadiths dengan kata "<strong>{{ $search }}</strong>"
+            @if($hadiths->currentPage() > 1)
+            (halaman {{ $hadiths->currentPage() }} dari {{ $hadiths->lastPage() }})
+            @endif
+          </div>
+          @endif
           <div id="hadithList">
             @forelse($hadiths as $hadith)
             <div class="hadith-item mb-4 p-3 rounded-3" style="background-color: var(--tg-theme-section-bg-color);">
