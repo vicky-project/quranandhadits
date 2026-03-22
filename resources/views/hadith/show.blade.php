@@ -24,7 +24,7 @@
             <input type="hidden" name="initData" value="{{ request()->get('initData') }}">
             <div class="position-relative">
               <input type="text" name="q" id="searchHadith" class="form-control" placeholder="Cari hadits..." value="{{ $search }}">
-              <button type="button" id="clearSearchHadith" class="btn btn-link position-absolute end-0 top-0 text-muted {{ $search !== '' ? '' : 'd-none'}}" style="padding: 0.375rem 0.75rem;color: var(--tg-theme-hint-color);">
+              <button type="button" id="clearSearchHadith" class="btn btn-link position-absolute end-0 top-0 text-muted {{ $search !== '' ? 'd-none' : ''}}" style="padding: 0.375rem 0.75rem;color: var(--tg-theme-hint-color);">
                 <i class="bi bi-xl-lg"></i>
               </button>
             </div>
