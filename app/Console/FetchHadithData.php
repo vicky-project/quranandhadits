@@ -4,7 +4,7 @@ namespace Modules\QuranAndHadits\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Modules\QuranAndHadits\Traits\FileDownloader;
+use Modules\CoreUI\Traits\FileDownloader;
 use Modules\QuranAndHadits\Models\HadithBook;
 use Modules\QuranAndHadits\Models\Hadith;
 use JsonMachine\JsonDecoder\ExtJsonDecoder;
