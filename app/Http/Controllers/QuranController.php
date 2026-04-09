@@ -14,16 +14,18 @@ class QuranController extends Controller
   * Display a listing of the resource.
   */
   public function index(Request $request) {
-    $surahs = Surah::orderBy('number')->get();
+    return view('quranandhadits::quran.index');
+  }
 
-    return view('quranandhadits::quran.index', compact('surahs'));
+  public function surahs() {
+    return response()->json(Surah::orderBy('number')->get());
   }
 
   /**
   * Show the specified resource.
   */
-  public function show(Request $request, $surahNumber) {
-    $surah = Surah::where('number', $surahNumber)->firstOrFail();
+  public function surah(Request $request, $number) {
+    $surah = Surah::where('number', $number)->firstOrFail();
     $page = $request->get("page", 1);
     $search = $request->get("q", "");
     $cacheKey = "verses_surah_{$surah->id}_page_{$page}_search_" . md5($search);
@@ -44,7 +46,9 @@ class QuranController extends Controller
       return $query->orderBy('verse_number')->paginate($perPage, ["*"], 'page', $page)->withQueryString();
     });
 
-    return view('quranandhadits::quran.show',
-      compact('surah', 'verses', 'search'));
+    return response()->json([
+      "surah" => $surah,
+      "verses" => $verses
+    ]);
   }
 }

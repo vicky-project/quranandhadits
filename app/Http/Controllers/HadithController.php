@@ -11,11 +11,15 @@ use Modules\QuranAndHadits\Models\Hadith;
 class HadithController extends Controller
 {
   public function index() {
-    $books = HadithBook::orderBy('name')->get();
-    return view('quranandhadits::hadith.index', compact('books'));
+    return view('quranandhadits::hadith.index');
   }
 
-  public function show(Request $request, $slug) {
+  public function books() {
+    $books = HadithBook::orderBy('name')->get();
+    return response()->json($books);
+  }
+
+  public function book(Request $request, $slug) {
     $book = HadithBook::where('slug', $slug)->firstOrFail();
     $page = $request->get("page", 1);
     $search = $request->get("q", "");
@@ -40,7 +44,14 @@ class HadithController extends Controller
       ->paginate($perPage, ["*"], "page", $page)->withQueryString();
     });
 
-    return view('quranandhadits::hadith.show',
-      compact('book', 'hadiths', 'search'));
+    return response()->json([
+      'book' => $book,
+      'hadiths' => [
+        'data' => $hadiths->items(),
+        'current_page' => $hadiths->currentPage(),
+        'last_page' => $hadiths->lastPage(),
+        'total' => $hadiths->total()
+      ]
+    ]);
   }
 }
