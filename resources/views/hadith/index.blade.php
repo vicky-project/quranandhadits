@@ -85,7 +85,7 @@
 @push('scripts')
 <script>
   (function() {
-  const { fetchWithAuth, showToast, showLoading, hideLoading, escapeHtml } = window.TelegramApp;
+  const { fetchWithAuth, showToast, showLoading, hideLoading, escapeHtml, renderPagination } = window.TelegramApp;
 
   let allBooks = [];
   let currentBook = null;
@@ -204,7 +204,7 @@
   document.getElementById('books-view').style.display = 'none';
   document.getElementById('detail-view').style.display = 'block';
   renderHadiths(hadiths.data, search);
-  renderPagination(hadiths, slug, search);
+  renderPagination('paginationContainer', hadiths.current_page, hadiths.last_page, (page) => loadHadiths(slug, page, currentSearch));
   document.getElementById('backToBooksBtn').addEventListener('click', () => renderBooks());
   document.getElementById('searchForm').addEventListener('submit', (e) => {
   e.preventDefault();
@@ -241,28 +241,6 @@
   const original = el.innerText;
   const highlighted = original.replace(regex, '<mark>$1</mark>');
   el.innerHTML = highlighted;
-  });
-  }
-
-  function renderPagination(pagination, slug, searchTerm) {
-  const container = document.getElementById('paginationContainer');
-  if (pagination.last_page <= 1) {
-  container.innerHTML = '';
-  return;
-  }
-  let html = '<ul class="pagination pagination-sm justify-content-center">';
-  for (let i = 1; i <= pagination.last_page; i++) {
-  const active = i === pagination.current_page ? 'active' : '';
-  html += `<li class="page-item ${active}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
-  }
-  html += '</ul>';
-  container.innerHTML = html;
-  document.querySelectorAll('.page-link').forEach(link => {
-  link.addEventListener('click', (e) => {
-  e.preventDefault();
-  const page = parseInt(link.dataset.page);
-  loadHadiths(slug, page, searchTerm);
-  });
   });
   }
 

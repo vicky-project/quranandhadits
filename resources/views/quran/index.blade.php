@@ -95,7 +95,7 @@
 @push('scripts')
 <script>
   (function() {
-  const { fetchWithAuth, showToast, showLoading, hideLoading, escapeHtml } = window.TelegramApp;
+  const { fetchWithAuth, showToast, showLoading, hideLoading, escapeHtml, renderPagination } = window.TelegramApp;
 
   let allSurahs = [];
   let currentSurah = null;
@@ -220,7 +220,7 @@
   document.getElementById('surah-view').style.display = 'none';
   document.getElementById('detail-view').style.display = 'block';
   renderVerses(verses.data, search);
-  renderPagination(verses, surahNumber, search);
+  renderPagination('paginationContainer', verses.current_page, verses.last_page, (page) => loadSurahDetail(surahNumber, page, currentSearch));
   document.getElementById('backToSurahsBtn').addEventListener('click', () => renderSurahs());
   document.getElementById('searchForm').addEventListener('submit', (e) => {
   e.preventDefault();
@@ -258,28 +258,6 @@
   const original = el.innerText;
   const highlighted = original.replace(regex, '<mark>$1</mark>');
   el.innerHTML = highlighted;
-  });
-  }
-
-  function renderPagination(verses, surahNumber, searchTerm) {
-  const container = document.getElementById('paginationContainer');
-  if (verses.last_page <= 1) {
-  container.innerHTML = '';
-  return;
-  }
-  let html = '<div class="pagination-wrapper"><ul class="pagination pagination-sm justify-content-center">';
-  for (let i = 1; i <= verses.last_page; i++) {
-  const active = i === verses.current_page ? 'active' : '';
-  html += `<li class="page-item ${active}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
-  }
-  html += '</ul></div>';
-  container.innerHTML = html;
-  document.querySelectorAll('.page-link').forEach(link => {
-  link.addEventListener('click', (e) => {
-  e.preventDefault();
-  const page = parseInt(link.dataset.page);
-  loadSurahDetail(surahNumber, page, searchTerm);
-  });
   });
   }
 
