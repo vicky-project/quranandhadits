@@ -59,16 +59,6 @@
     background-color: var(--tg-theme-section-separator-color);
     transform: scale(0.98);
   }
-  .pagination .page-link {
-    background-color: var(--tg-theme-bg-color);
-    color: var(--tg-theme-text-color);
-    border-color: var(--tg-theme-section-separator-color);
-  }
-  .pagination .active .page-link {
-    background-color: var(--tg-theme-button-color);
-    border-color: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
-  }
   mark {
     background-color: #ffeb3b;
     color: #000;
