@@ -4,12 +4,6 @@
 
 @section('content')
 <div id="quran-app">
-  <div class="text-center py-5" id="loading-view">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-2 text-muted">
-      Memuat daftar surah...
-    </p>
-  </div>
   <div id="surah-view" style="display:none;"></div>
   <div id="detail-view" style="display:none;"></div>
 </div>
@@ -117,10 +111,10 @@
   });
   document.getElementById('surah-view').style.display = 'block';
   document.getElementById('detail-view').style.display = 'none';
-  document.getElementById('loading-view').style.display = 'none';
   } catch (err) {
   showToast('Gagal memuat surah: ' + err.message);
-  document.getElementById('loading-view').innerHTML = `<div class="alert alert-danger">Gagal memuat surah: ${err.message}</div>`;
+  document.getElementById('surah-view').style.display = 'block';
+  document.getElementById('surah-view').innerHTML = `<div class="alert alert-danger">Gagal memuat surah: ${err.message}</div>`;
   } finally {
   hideLoading();
   }

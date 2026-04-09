@@ -4,12 +4,6 @@
 
 @section('content')
 <div id="hadith-app">
-  <div class="text-center py-5" id="loading-view">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-2 text-muted">
-      Memuat kitab hadits...
-    </p>
-  </div>
   <div id="books-view" style="display:none;"></div>
   <div id="detail-view" style="display:none;"></div>
 </div>
@@ -107,10 +101,10 @@
   });
   document.getElementById('books-view').style.display = 'block';
   document.getElementById('detail-view').style.display = 'none';
-  document.getElementById('loading-view').style.display = 'none';
   } catch (err) {
   showToast('Gagal memuat kitab: ' + err.message);
-  document.getElementById('loading-view').innerHTML = `<div class="alert alert-danger">Gagal memuat kitab: ${err.message}</div>`;
+  document.getElementById('books-view').style.display = 'block';
+  document.getElementById('book-view').innerHTML = `<div class="alert alert-danger">Gagal memuat kitab: ${err.message}</div>`;
   } finally {
   hideLoading();
   }
