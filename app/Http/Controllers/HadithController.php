@@ -11,7 +11,7 @@ use Modules\QuranAndHadits\Models\Hadith;
 class HadithController extends Controller
 {
   public function index() {
-    return view('quranandhadits::hadith.index');
+    return view('quranandhadits::hadith');
   }
 
   public function books() {

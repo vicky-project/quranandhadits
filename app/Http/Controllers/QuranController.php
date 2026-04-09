@@ -14,7 +14,7 @@ class QuranController extends Controller
   * Display a listing of the resource.
   */
   public function index(Request $request) {
-    return view('quranandhadits::quran.index');
+    return view('quranandhadits::quran');
   }
 
   public function surahs() {
