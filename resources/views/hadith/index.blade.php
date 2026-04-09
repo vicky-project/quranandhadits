@@ -3,17 +3,15 @@
 @section('title', 'Koleksi Hadits')
 
 @section('content')
-<div class="container py-3" style="max-width:600px; margin:0 auto;">
-  <div id="hadith-app">
-    <div class="text-center py-5" id="loading-view">
-      <div class="spinner-border text-primary" role="status"></div>
-      <p class="mt-2 text-muted">
-        Memuat kitab hadits...
-      </p>
-    </div>
-    <div id="books-view" style="display:none;"></div>
-    <div id="detail-view" style="display:none;"></div>
+<div id="hadith-app">
+  <div class="text-center py-5" id="loading-view">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2 text-muted">
+      Memuat kitab hadits...
+    </p>
   </div>
+  <div id="books-view" style="display:none;"></div>
+  <div id="detail-view" style="display:none;"></div>
 </div>
 @endsection
 

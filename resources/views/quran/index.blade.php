@@ -3,17 +3,15 @@
 @section('title', 'Al-Qur\'an')
 
 @section('content')
-<div class="container py-3" style="max-width:600px; margin:0 auto;">
-  <div id="quran-app">
-    <div class="text-center py-5" id="loading-view">
-      <div class="spinner-border text-primary" role="status"></div>
-      <p class="mt-2 text-muted">
-        Memuat daftar surah...
-      </p>
-    </div>
-    <div id="surah-view" style="display:none;"></div>
-    <div id="detail-view" style="display:none;"></div>
+<div id="quran-app">
+  <div class="text-center py-5" id="loading-view">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2 text-muted">
+      Memuat daftar surah...
+    </p>
   </div>
+  <div id="surah-view" style="display:none;"></div>
+  <div id="detail-view" style="display:none;"></div>
 </div>
 @endsection
 
