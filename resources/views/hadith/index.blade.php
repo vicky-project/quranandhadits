@@ -3,22 +3,90 @@
 @section('title', 'Koleksi Hadits')
 
 @section('content')
-<div id="hadith-app">
-  <div class="text-center py-5" id="loading-view">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-2 text-muted">
-      Memuat kitab hadits...
-    </p>
+<div class="container py-3" style="max-width:600px; margin:0 auto;">
+  <div id="hadith-app">
+    <div class="text-center py-5" id="loading-view">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 text-muted">
+        Memuat kitab hadits...
+      </p>
+    </div>
+    <div id="books-view" style="display:none;"></div>
+    <div id="detail-view" style="display:none;"></div>
   </div>
-  <div id="books-view" style="display:none;"></div>
-  <div id="detail-view" style="display:none;"></div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+  body {
+    background-color: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+  }
+  .card {
+    background-color: var(--tg-theme-secondary-bg-color);
+    border-color: var(--tg-theme-section-separator-color);
+  }
+  .card-header {
+    background-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+  }
+  .form-control, .input-group-text {
+    background-color: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+    border-color: var(--tg-theme-section-separator-color);
+  }
+  .btn-primary {
+    background-color: var(--tg-theme-button-color);
+    border-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+  }
+  .btn-outline-secondary {
+    border-color: var(--tg-theme-section-separator-color);
+    color: var(--tg-theme-hint-color);
+  }
+  .text-muted {
+    color: var(--tg-theme-hint-color) !important;
+  }
+  .book-item, .hadith-item {
+    background-color: var(--tg-theme-secondary-bg-color);
+    border: 1px solid var(--tg-theme-section-separator-color);
+    color: var(--tg-theme-text-color);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .book-item:active, .hadith-item:active {
+    background-color: var(--tg-theme-section-separator-color);
+    transform: scale(0.98);
+  }
+  .pagination .page-link {
+    background-color: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+    border-color: var(--tg-theme-section-separator-color);
+  }
+  .pagination .active .page-link {
+    background-color: var(--tg-theme-button-color);
+    border-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+  }
+  mark {
+    background-color: #ffeb3b;
+    color: #000;
+  }
+  @media (prefers-color-scheme: dark) {
+    mark {
+      background-color: #f9a825;
+      color: #1a1a1a;
+    }
+  }
+</style>
+@endpush
 
 @push('scripts')
 <script>
   (function() {
-  // Ambil fungsi global dari layout
   const { fetchWithAuth, showToast, showLoading, hideLoading, escapeHtml } = window.TelegramApp;
 
   let allBooks = [];
@@ -26,15 +94,14 @@
   let currentPage = 1;
   let currentSearch = '';
 
-  // Render daftar kitab
   async function renderBooks() {
   showLoading('Memuat kitab...');
   try {
-  allBooks = await fetchWithAuth('{{ config("app.url") }}/api/hadith/books');
+  allBooks = await fetchWithAuth('/api/hadith/books');
   const container = document.getElementById('books-view');
   let html = `
   <div class="card shadow">
-  <div class="card-header bg-primary text-white">
+  <div class="card-header">
   <h4 class="mb-0"><i class="bi bi-journal-bookmark-fill me-2"></i>Kitab Hadits</h4>
   </div>
   <div class="card-body">
@@ -72,7 +139,7 @@
   let html = '';
   filtered.forEach(book => {
   html += `
-  <div class="book-item p-3 mb-2 border rounded-3" style="cursor:pointer; background: var(--tg-theme-secondary-bg-color);" data-slug="${book.slug}">
+  <div class="book-item p-3" data-slug="${book.slug}">
   <div class="d-flex justify-content-between align-items-center">
   <div>
   <strong>${escapeHtml(book.name)}</strong>
@@ -98,13 +165,13 @@
   currentPage = page;
   currentSearch = search;
   try {
-  let url = `{{ config("app.url") }}/api/hadith/book/${slug}?page=${page}`;
+  let url = `/api/hadith/book/${slug}?page=${page}`;
   if (search) url += `&q=${encodeURIComponent(search)}`;
   const data = await fetchWithAuth(url);
   renderDetailView(data, slug, page, search);
   } catch (err) {
   showToast('Gagal memuat hadits: ' + err.message);
-  renderBooks(); // kembali ke daftar
+  renderBooks();
   } finally {
   hideLoading();
   }
@@ -112,13 +179,13 @@
 
   function renderDetailView(data, slug, page, search) {
   const book = data.book;
-  const hadiths = data.hadiths; // { data, current_page, last_page, total }
+  const hadiths = data.hadiths;
   let html = `
   <div class="mb-3">
   <button id="backToBooksBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Daftar Kitab</button>
   </div>
   <div class="card shadow">
-  <div class="card-header bg-primary text-white">
+  <div class="card-header">
   <h4 class="mb-0">${escapeHtml(book.name)}</h4>
   <small>Total ${book.total_hadiths} hadits</small>
   </div>
@@ -138,15 +205,10 @@
   document.getElementById('detail-view').innerHTML = html;
   document.getElementById('books-view').style.display = 'none';
   document.getElementById('detail-view').style.display = 'block';
-
   renderHadiths(hadiths.data, search);
   renderPagination(hadiths, slug, search);
-
-  document.getElementById('backToBooksBtn').addEventListener('click', () => {
-  renderBooks();
-  });
-  const searchForm = document.getElementById('searchForm');
-  searchForm.addEventListener('submit', (e) => {
+  document.getElementById('backToBooksBtn').addEventListener('click', () => renderBooks());
+  document.getElementById('searchForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const newSearch = document.getElementById('searchHadith').value;
   loadHadiths(slug, 1, newSearch);
@@ -162,7 +224,7 @@
   let html = '';
   hadiths.forEach(h => {
   html += `
-  <div class="hadith-item p-3 mb-3 border rounded-3" style="background: var(--tg-theme-secondary-bg-color);">
+  <div class="hadith-item p-3 mb-3">
   <div class="d-flex justify-content-between">
   <span class="badge bg-primary">Hadits No. ${h.number}</span>
   </div>
@@ -206,46 +268,7 @@
   });
   }
 
-  // Mulai aplikasi
   renderBooks();
   })();
 </script>
 @endpush
-
-@push('styles')
-<style>
-  .book-item, .hadith-item {
-    transition: transform 0.1s ease;
-  }
-  .book-item:active, .hadith-item:active {
-    transform: scale(0.98);
-  }
-  .arabic-text {
-    direction: rtl;
-    font-size: 1.8rem;
-    line-height: 1.5;
-  }
-  mark {
-    background-color: #ffeb3b;
-    color: #000;
-    border-radius: 4px;
-    padding: 0 2px;
-  }
-  @media (prefers-color-scheme: dark) {
-    mark {
-      background-color: #f9a825;
-      color: #1a1a1a;
-    }
-  }
-  .pagination .page-link {
-    background-color: var(--tg-theme-bg-color, #fff);
-    color: var(--tg-theme-text-color, #000);
-    border-color: var(--tg-theme-section-separator-color, #dee2e6);
-    }
-    .pagination .active .page-link {
-    background-color: var(--tg-theme-button-color, #007aff);
-    border-color: var(--tg-theme-button-color, #007aff);
-    color: white;
-    }
-    </style>
-    @endpush

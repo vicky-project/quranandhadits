@@ -3,22 +3,100 @@
 @section('title', 'Al-Qur\'an')
 
 @section('content')
-<div id="quran-app">
-  <div class="text-center py-5" id="loading-view">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-2 text-muted">
-      Memuat daftar surah...
-    </p>
+<div class="container py-3" style="max-width:600px; margin:0 auto;">
+  <div id="quran-app">
+    <div class="text-center py-5" id="loading-view">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 text-muted">
+        Memuat daftar surah...
+      </p>
+    </div>
+    <div id="surah-view" style="display:none;"></div>
+    <div id="detail-view" style="display:none;"></div>
   </div>
-  <div id="surah-view" style="display:none;"></div>
-  <div id="detail-view" style="display:none;"></div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+  /* ==================== TELEGRAM THEME STYLES ==================== */
+  body {
+    background-color: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+  }
+  .card {
+    background-color: var(--tg-theme-secondary-bg-color);
+    border-color: var(--tg-theme-section-separator-color);
+  }
+  .card-header {
+    background-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+  }
+  .form-control, .input-group-text {
+    background-color: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+    border-color: var(--tg-theme-section-separator-color);
+  }
+  .form-control::placeholder {
+    color: var(--tg-theme-hint-color);
+  }
+  .btn-primary {
+    background-color: var(--tg-theme-button-color);
+    border-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+  }
+  .btn-outline-secondary {
+    border-color: var(--tg-theme-section-separator-color);
+    color: var(--tg-theme-hint-color);
+  }
+  .btn-outline-secondary:hover {
+    background-color: var(--tg-theme-secondary-bg-color);
+    color: var(--tg-theme-text-color);
+  }
+  .text-muted {
+    color: var(--tg-theme-hint-color) !important;
+  }
+  .surah-item, .verse-item {
+    background-color: var(--tg-theme-secondary-bg-color);
+    border: 1px solid var(--tg-theme-section-separator-color);
+    color: var(--tg-theme-text-color);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .surah-item:active, .verse-item:active {
+    background-color: var(--tg-theme-section-separator-color);
+    transform: scale(0.98);
+  }
+  .pagination .page-link {
+    background-color: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+    border-color: var(--tg-theme-section-separator-color);
+  }
+  .pagination .active .page-link {
+    background-color: var(--tg-theme-button-color);
+    border-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+  }
+  mark {
+    background-color: #ffeb3b;
+    color: #000;
+    border-radius: 4px;
+    padding: 0 2px;
+  }
+  @media (prefers-color-scheme: dark) {
+    mark {
+      background-color: #f9a825;
+      color: #1a1a1a;
+    }
+  }
+</style>
+@endpush
 
 @push('scripts')
 <script>
   (function() {
-  // ==================== AMBIL FUNGSI GLOBAL DARI LAYOUT ====================
   const { fetchWithAuth, showToast, showLoading, hideLoading, escapeHtml } = window.TelegramApp;
 
   let allSurahs = [];
@@ -26,15 +104,14 @@
   let currentPage = 1;
   let currentSearch = '';
 
-  // Render daftar surah (tanpa refresh)
   async function renderSurahs() {
   showLoading('Memuat surah...');
   try {
-  allSurahs = await fetchWithAuth('{{ config("app.url") }}/api/quran/surahs');
+  allSurahs = await fetchWithAuth('/api/quran/surahs');
   const container = document.getElementById('surah-view');
   let html = `
   <div class="card shadow">
-  <div class="card-header bg-primary text-white">
+  <div class="card-header">
   <h4 class="mb-0"><i class="bi bi-book me-2"></i>Daftar Surah</h4>
   </div>
   <div class="card-body">
@@ -76,7 +153,7 @@
   let html = '';
   filtered.forEach(s => {
   html += `
-  <div class="surah-item p-3 mb-2 border rounded-3" style="cursor:pointer; background: var(--tg-theme-secondary-bg-color);" data-number="${s.number}">
+  <div class="surah-item p-3" data-number="${s.number}">
   <div class="d-flex justify-content-between align-items-center">
   <div>
   <strong>${s.number}. ${escapeHtml(s.name_latin)}</strong>
@@ -103,13 +180,13 @@
   currentPage = page;
   currentSearch = search;
   try {
-  let url = `{{ config("app.url") }}/api/quran/surah/${surahNumber}?page=${page}`;
+  let url = `/api/quran/surah/${surahNumber}?page=${page}`;
   if (search) url += `&q=${encodeURIComponent(search)}`;
   const data = await fetchWithAuth(url);
   renderDetailView(data, surahNumber, page, search);
   } catch (err) {
   showToast('Gagal memuat detail surah: ' + err.message);
-  renderSurahs(); // kembali ke daftar
+  renderSurahs();
   } finally {
   hideLoading();
   }
@@ -117,13 +194,13 @@
 
   function renderDetailView(data, surahNumber, page, search) {
   const surah = data.surah;
-  const verses = data.verses; // { data, current_page, last_page, total }
+  const verses = data.verses;
   let html = `
   <div class="mb-3">
   <button id="backToSurahsBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Daftar Surah</button>
   </div>
   <div class="card shadow">
-  <div class="card-header bg-primary text-white">
+  <div class="card-header">
   <h4 class="mb-0">${surah.number}. ${escapeHtml(surah.name_latin)}</h4>
   <small>${escapeHtml(surah.name)} • ${escapeHtml(surah.meaning)} • ${surah.number_of_verses} ayat</small>
   </div>
@@ -143,15 +220,10 @@
   document.getElementById('detail-view').innerHTML = html;
   document.getElementById('surah-view').style.display = 'none';
   document.getElementById('detail-view').style.display = 'block';
-
   renderVerses(verses.data, search);
   renderPagination(verses, surahNumber, search);
-
-  document.getElementById('backToSurahsBtn').addEventListener('click', () => {
-  renderSurahs();
-  });
-  const searchForm = document.getElementById('searchForm');
-  searchForm.addEventListener('submit', (e) => {
+  document.getElementById('backToSurahsBtn').addEventListener('click', () => renderSurahs());
+  document.getElementById('searchForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const newSearch = document.getElementById('searchVerse').value;
   loadSurahDetail(surahNumber, 1, newSearch);
@@ -167,7 +239,7 @@
   let html = '';
   verses.forEach(v => {
   html += `
-  <div class="verse-item p-3 mb-3 border rounded-3" style="background: var(--tg-theme-secondary-bg-color);">
+  <div class="verse-item p-3 mb-3">
   <div class="d-flex justify-content-between">
   <span class="badge bg-primary">${v.verse_number}</span>
   </div>
@@ -212,47 +284,7 @@
   });
   }
 
-  // Mulai aplikasi
   renderSurahs();
   })();
 </script>
 @endpush
-
-@push('styles')
-<style>
-  /* Gaya tambahan untuk Quran */
-  .surah-item, .verse-item {
-    transition: transform 0.1s ease;
-  }
-  .surah-item:active, .verse-item:active {
-    transform: scale(0.98);
-  }
-  .arabic-text {
-    direction: rtl;
-    font-size: 1.8rem;
-    line-height: 1.5;
-  }
-  mark {
-    background-color: #ffeb3b;
-    color: #000;
-    border-radius: 4px;
-    padding: 0 2px;
-  }
-  @media (prefers-color-scheme: dark) {
-    mark {
-      background-color: #f9a825;
-      color: #1a1a1a;
-    }
-  }
-  .pagination .page-link {
-    background-color: var(--tg-theme-bg-color, #fff);
-    color: var(--tg-theme-text-color, #000);
-    border-color: var(--tg-theme-section-separator-color, #dee2e6);
-    }
-    .pagination .active .page-link {
-    background-color: var(--tg-theme-button-color, #007aff);
-    border-color: var(--tg-theme-button-color, #007aff);
-    color: white;
-    }
-    </style>
-    @endpush
