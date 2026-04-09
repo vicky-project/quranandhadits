@@ -211,7 +211,9 @@
   </form>
   ${search ? `<div class="alert alert-info text-center py-2">Menampilkan <strong>${verses.data.length}</strong> dari <strong>${verses.total}</strong> ayat dengan kata "<strong>${escapeHtml(search)}</strong>" (halaman ${verses.current_page} dari ${verses.last_page})</div>` : ''}
   <div id="versesList"></div>
+  <div class="container-fluid">
   <div id="paginationContainer" class="d-flex justify-content-center mt-4"></div>
+  </div>
   </div>
   </div>
   `;
