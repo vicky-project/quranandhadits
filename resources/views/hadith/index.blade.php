@@ -97,7 +97,7 @@
   async function renderBooks() {
   showLoading('Memuat kitab...');
   try {
-  allBooks = await fetchWithAuth('/api/hadith/books');
+  allBooks = await fetchWithAuth('{{ config("app.url") }}/api/hadith/books');
   const container = document.getElementById('books-view');
   let html = `
   <div class="card shadow">
@@ -165,7 +165,7 @@
   currentPage = page;
   currentSearch = search;
   try {
-  let url = `/api/hadith/book/${slug}?page=${page}`;
+  let url = `{{ config("app.url") }}/api/hadith/book/${slug}?page=${page}`;
   if (search) url += `&q=${encodeURIComponent(search)}`;
   const data = await fetchWithAuth(url);
   renderDetailView(data, slug, page, search);

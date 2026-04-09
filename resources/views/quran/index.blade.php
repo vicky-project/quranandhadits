@@ -107,7 +107,7 @@
   async function renderSurahs() {
   showLoading('Memuat surah...');
   try {
-  allSurahs = await fetchWithAuth('/api/quran/surahs');
+  allSurahs = await fetchWithAuth('{{ config("app.url") }}/api/quran/surahs');
   const container = document.getElementById('surah-view');
   let html = `
   <div class="card shadow">
@@ -180,7 +180,7 @@
   currentPage = page;
   currentSearch = search;
   try {
-  let url = `/api/quran/surah/${surahNumber}?page=${page}`;
+  let url = `{{ config("app.url") }}/api/quran/surah/${surahNumber}?page=${page}`;
   if (search) url += `&q=${encodeURIComponent(search)}`;
   const data = await fetchWithAuth(url);
   renderDetailView(data, surahNumber, page, search);
