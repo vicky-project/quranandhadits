@@ -211,8 +211,7 @@
   </form>
   ${search ? `<div class="alert alert-info text-center py-2">Menampilkan <strong>${verses.data.length}</strong> dari <strong>${verses.total}</strong> ayat dengan kata "<strong>${escapeHtml(search)}</strong>" (halaman ${verses.current_page} dari ${verses.last_page})</div>` : ''}
   <div id="versesList"></div>
-  <div class="container-fluid">
-  <div id="paginationContainer" class="d-flex justify-content-center mt-4"></div>
+  <div id="paginationContainer" class="d-flex justify-content-center mt-4">
   </div>
   </div>
   </div>
@@ -268,12 +267,12 @@
   container.innerHTML = '';
   return;
   }
-  let html = '<ul class="pagination pagination-sm justify-content-center">';
+  let html = '<div class="pagination-wrapper"><ul class="pagination pagination-sm justify-content-center">';
   for (let i = 1; i <= verses.last_page; i++) {
   const active = i === verses.current_page ? 'active' : '';
   html += `<li class="page-item ${active}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
   }
-  html += '</ul>';
+  html += '</ul></div>';
   container.innerHTML = html;
   document.querySelectorAll('.page-link').forEach(link => {
   link.addEventListener('click', (e) => {
