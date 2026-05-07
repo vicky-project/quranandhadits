@@ -39,6 +39,16 @@ class FetchHadithData extends Command
   }
 
   public function handle() {
+    // 🔍 Cek apakah tabel hadith_books sudah ada
+    if (!Schema::hasTable('hadith_books')) {
+      $this->error('❌ Tabel "hadith_books" belum tersedia di database.');
+      $this->warn('Silakan jalankan perintah berikut terlebih dahulu:');
+      $this->line('   php artisan migrate');
+      $this->newLine();
+      $this->info('Setelah migrasi berhasil, jalankan kembali command ini.');
+      return 1;
+    }
+
     $this->info('🚀 Fetching Hadith data...');
 
     $tempFile = null;
