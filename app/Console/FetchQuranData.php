@@ -4,6 +4,7 @@ namespace Modules\QuranAndHadits\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Modules\CoreUI\Traits\FileDownloader;
 use Modules\QuranAndHadits\Models\Surah;
 use Modules\QuranAndHadits\Models\Verse;
@@ -37,6 +38,16 @@ class FetchQuranData extends Command
   }
 
   public function handle() {
+    // 🔍 Cek apakah tabel surahs sudah ada
+    if (!Schema::hasTable('surahs')) {
+      $this->error('❌ Tabel "surahs" belum tersedia di database.');
+      $this->warn('Silakan jalankan perintah berikut terlebih dahulu:');
+      $this->line('   php artisan migrate');
+      $this->newLine();
+      $this->info('Setelah migrasi berhasil, jalankan kembali command ini.');
+      return 1;
+    }
+
     $this->info('🚀 Starting Quran data fetch with streaming...');
 
     $tempFile = null;
