@@ -4,8 +4,8 @@ return [
   [
     'id' => 'quran',
     'name' => 'Al-Quran',
-    'description' => 'Baca ayat Al-Quran',
-    'icon_class' => 'bi bi-journal-code',
+    'description' => 'Baca ayat suci Al-Quran',
+    'icon_emoji' => '📖',
     'render_type' => 'iframe',
     'render_config' => [
       'url' => env('APP_URL') . '/apps/quran'
@@ -14,8 +14,8 @@ return [
   [
     'id' => 'hadith',
     'name' => 'Hadits',
-    'description' => 'Koleksi hadits pilihan',
-    'icon_class' => 'bi bi-journal-bookmark-fill',
+    'description' => 'Kumpulan hadits pilihan',
+    'icon_emoji' => '📚',
     'render_type' => 'iframe',
     'render_config' => [
       'url' => env('APP_URL') . '/apps/hadith'
