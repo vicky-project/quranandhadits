@@ -4,6 +4,7 @@ namespace Modules\QuranAndHadits\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Modules\CoreUI\Traits\FileDownloader;
 use Modules\QuranAndHadits\Models\HadithBook;
 use Modules\QuranAndHadits\Models\Hadith;
