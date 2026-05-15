@@ -7,10 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Modules\QuranAndHadits\Models\Surah;
 use Modules\QuranAndHadits\Models\Verse;
-use Nwidart\Modules\Facades\Module;
+use Modules\QuranAndHadits\Traits\HasNotes;
 
 class QuranController extends Controller
 {
+  use HasNotes;
+
   /**
   * Display a listing of the resource.
   */
@@ -53,15 +55,5 @@ class QuranController extends Controller
       "surah" => $surah,
       "verses" => $verses
     ]);
-  }
-
-  protected function notesJsConfig(): array
-  {
-    $available = Module::has('Notes') && Module::isEnabled('Notes');
-
-    return [
-      'notesAvailable' => $available,
-      'notesEndpoint' => $available ? secure_url(config('notes.integration.endpoint')) : null
-    ];
   }
 }

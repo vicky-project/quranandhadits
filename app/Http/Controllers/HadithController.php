@@ -7,11 +7,16 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Cache;
 use Modules\QuranAndHadits\Models\HadithBook;
 use Modules\QuranAndHadits\Models\Hadith;
+use Modules\QuranAndHadits\Traits\HasNotes;
 
 class HadithController extends Controller
 {
+  use HasNotes;
+
   public function index() {
-    return view('quranandhadits::hadith');
+    return view('quranandhadits::hadith', [
+      'notesConfig' => $this->notesJsConfig()
+    ]);
   }
 
   public function books() {
