@@ -85,11 +85,6 @@
 @endpush
 
 @push('scripts')
-<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-<script src="//cdn.jsdelivr.net/npm/eruda"></script>
-<script>
-  eruda.init();
-</script>
 <script>
   window.NotesConfig = @json($notesConfig ?? ['notesAvailable' => false, 'notesEndpoint' => null]);
 </script>
