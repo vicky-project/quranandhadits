@@ -252,6 +252,7 @@
   if(window.NotesConfig?.notesAvailable) {
   attachSaveButtonListeners(container);
   }
+  }
 
   function buildNotePayload(v) {
   return {
