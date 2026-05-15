@@ -235,7 +235,7 @@
   const saveButtonHtml = window.NotesConfig?.notesAvailable ? `
   <button class="btn btn-save-note btn-sm save-to-notes-btn"
   data-payload="${payloadStr}">
-  <i class="bi bi-journal-plus me-1"></i> Simpan ke Notes
+  <i class="bi bi-journal-plus"></i>
   </button>` : '';
 
   html += `
@@ -244,7 +244,7 @@
   <span class="badge bg-primary">Hadits No. ${h.number}</span>
   ${saveButtonHtml}
   </div>
-  <div class="arabic-text text-end my-2" style="font-size:1.8rem; font-family: 'Traditional Arabic', serif;">${h.arabic}</div>
+  <div class="arabic-text text-end my-2" style="font-size:2.8rem; font-family: 'Traditional Arabic', serif;">${h.arabic}</div>
   <div class="translation">${escapeHtml(h.translation)}</div>
   </div>`;
   });
