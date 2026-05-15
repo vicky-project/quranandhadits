@@ -86,7 +86,6 @@
 
 @push('scripts')
 <script>
-  // Fallback jika $notesConfig tidak terdefinisi
   window.NotesConfig = @json($notesConfig ?? ['notesAvailable' => false, 'notesEndpoint' => null]);
 </script>
 <script>
