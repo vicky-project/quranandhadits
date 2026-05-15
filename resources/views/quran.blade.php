@@ -242,23 +242,22 @@
   }
   let html = '';
   verses.forEach(v => {
-  // ✅ Escape untuk mencegah rusaknya JSON
   const payload = buildNotePayload(v);
   const payloadStr = JSON.stringify(payload).replace(/"/g, '&quot;').replace(/'/g, "&#39;");
 
   const saveButtonHtml = window.NotesConfig?.notesAvailable ? `
   <button class="btn btn-save-note btn-sm save-to-notes-btn"
   data-payload="${payloadStr}">
-  <i class="bi bi-journal-plus me-1"></i> Simpan ke Notes
+  <i class="bi bi-journal-plus"></i>
   </button>` : '';
 
   html += `
   <div class="verse-item p-3 mb-3">
-  <div class="d-flex justify-content-between align-items-start mb-2">
+  <div class="d-flex justify-content-between ${saveButtonHtml ? 'align-items-center' : 'align-items-start'} mb-3">
   <span class="badge bg-primary">${v.verse_number}</span>
   ${saveButtonHtml}
   </div>
-  <div class="arabic-text text-end my-2" style="font-size:1.8rem; font-family: 'Traditional Arabic', serif;">${v.arabic_text}</div>
+  <div class="arabic-text text-end my-2" style="font-size:2.8rem; font-family: 'Traditional Arabic', serif;">${v.arabic_text}</div>
   <div class="latin-text text-muted mb-1">${escapeHtml(v.latin_text)}</div>
   <div class="translation">${escapeHtml(v.translation)}</div>
   </div>`;
@@ -267,7 +266,6 @@
 
   if (searchTerm) highlightText(container, searchTerm);
 
-  // ✅ Pasang listener di dalam fungsi
   if (window.NotesConfig?.notesAvailable) {
   attachSaveButtonListeners(container);
   }
