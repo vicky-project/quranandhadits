@@ -61,7 +61,7 @@ class QuranController extends Controller
 
     return [
       'notesAvailable' => $available,
-      'notesEndpoint' => $available ? url(config('notes.integration.endpoint')) : null
+      'notesEndpoint' => $available ? secure_url(config('notes.integration.endpoint')) : null
     ];
   }
 }
