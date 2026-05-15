@@ -240,7 +240,7 @@
 
   html += `
   <div class="hadith-item p-3 mb-3">
-  <div class="d-flex justify-content-between align-items-center mb-2">
+  <div class="d-flex justify-content-between ${saveButtonHtml ? 'align-items-center' : 'align-items-start'} mb-2">
   <span class="badge bg-primary">Hadits No. ${h.number}</span>
   ${saveButtonHtml}
   </div>

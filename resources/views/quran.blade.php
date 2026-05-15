@@ -253,7 +253,7 @@
 
   html += `
   <div class="verse-item p-3 mb-3">
-  <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex justify-content-between ${saveButtonHtml ? 'align-items-center' : 'align-items-start'} mb-3">
   <span class="badge bg-primary">${v.verse_number}</span>
   ${saveButtonHtml}
   </div>
