@@ -78,6 +78,7 @@
 
 @push('scripts')
 <script>
+  window.NotesConfig = @json($notesConfig)
   (function() {
   const { fetchWithAuth, showToast, showLoading, hideLoading, escapeHtml, renderPagination } = window.TelegramApp;
 
@@ -221,10 +222,18 @@
   }
   let html = '';
   verses.forEach(v => {
+  const saveButtonHtml = window.NotesConfig?.notesAvailable ? `
+  <button class="btn btn-save-note btn-sm save-to-notes-btn"
+  data-payload='${JSON.stringify(buildNotePayload(v)).replace(/'/g, "&#39;")}'>
+  <i class="bi bi-journal-plus me-1"></i> Simpan ke Notes
+  </button>
+  ` : '';
+
   html += `
   <div class="verse-item p-3 mb-3">
-  <div class="d-flex justify-content-between">
+  <div class="d-flex justify-content-between align-items-start mb-2">
   <span class="badge bg-primary">${v.verse_number}</span>
+  ${saveButtonHtml}
   </div>
   <div class="arabic-text text-end my-2" style="font-size:1.8rem; font-family: 'Traditional Arabic', serif;">${v.arabic_text}</div>
   <div class="latin-text text-muted mb-1">${escapeHtml(v.latin_text)}</div>
@@ -234,6 +243,60 @@
   });
   container.innerHTML = html;
   if (searchTerm) highlightText(container, searchTerm);
+  }
+  if(window.NotesConfig?.notesAvailable) {
+  attachSaveButtonListeners(container);
+  }
+
+  function buildNotePayload(v) {
+  return {
+  title: `QS. ${currentSurah}:${v.verse_number}`,
+  content: `<div style="font-family: 'Traditional Arabic', serif; font-size:1.8rem; text-align:right;">${v.arabic_text}</div>
+  <p style="color:#a0a0a0;">${v.latin_text}</p>
+  <p>"${v.translation}"</p>`,
+  type: 'text',
+  tags: ['quran', `surah-${currentSurah}`, `ayat-${v.verse_number}`],
+  source_module: 'QuranAndHadits',
+  source_id: `${currentSurah}:${v.verse_number}`,
+  metadata: {
+  surah_number: currentSurah,
+  verse_number: v.verse_number,
+  arabic_text: v.arabic_text,
+  latin_text: v.latin_text,
+  translation: v.translation
+  }
+  };
+  }
+
+  function attachSaveButtonListeners(container) {
+  container.querySelectorAll('.save-to-notes-btn').forEach(btn => {
+  btn.addEventListener('click', async function(e) {
+  e.stopPropagation();
+  const payload = JSON.parse(this.dataset.payload);
+  this.disabled = true;
+  const originalHtml = this.innerHTML;
+  this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
+
+  try {
+  await fetchWithAuth(window.NotesConfig.notesEndpoint, {
+  method: 'POST',
+  body: JSON.stringify(payload)
+  });
+  showToast('✅ Berhasil disimpan ke Notes!', 'success');
+  this.innerHTML = '<i class="bi bi-check-lg me-1"></i> Tersimpan';
+  this.classList.add('btn-success');
+  setTimeout(() => {
+  this.disabled = false;
+  this.innerHTML = originalHtml;
+  this.classList.remove('btn-success');
+  }, 2000);
+  } catch (err) {
+  showToast('❌ Gagal menyimpan: ' + err.message, 'danger');
+  this.disabled = false;
+  this.innerHTML = originalHtml;
+  }
+  });
+  });
   }
 
   function highlightText(container, term) {
@@ -247,5 +310,5 @@
 
   renderSurahs();
   })();
-</script>
-@endpush
+  </script>
+  @endpush

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Modules\QuranAndHadits\Models\Surah;
 use Modules\QuranAndHadits\Models\Verse;
+use Nwidart\Modules\Facades\Module;
 
 class QuranController extends Controller
 {
@@ -14,7 +15,9 @@ class QuranController extends Controller
   * Display a listing of the resource.
   */
   public function index(Request $request) {
-    return view('quranandhadits::quran');
+    return view('quranandhadits::quran', [
+      'notesConfig' => $this->notesJsConfig()
+    ]);
   }
 
   public function surahs() {
@@ -50,5 +53,15 @@ class QuranController extends Controller
       "surah" => $surah,
       "verses" => $verses
     ]);
+  }
+
+  protected function notesJsConfig(): array
+  {
+    $available = Module::has('Notes') && Module::isEnabled('Notes');
+
+    return [
+      'notesAvailable' => $available,
+      'notesEndpoint' => $available ? url(config('notes.integration.endpoint')) : null
+    ];
   }
 }
