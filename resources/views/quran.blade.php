@@ -73,10 +73,30 @@
       color: #1a1a1a;
     }
   }
+
+  .btn-save-note {
+    background: rgba(255, 193, 7, 0.15);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    color: #ffc107;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .btn-save-note:hover, .btn-save-note:active {
+    background: rgba(255, 193, 7, 0.3);
+    border-color: #ffc107;
+  }
+  .btn-save-note:disabled {
+    opacity: 0.7;
+  }
 </style>
 @endpush
 
 @push('scripts')
+<script>
+  window.NotesConfig = @json($notesConfig ?? ['notesAvailable' => false, 'notesEndpoint' => null]);
+</script>
 <script>
   (function() {
   const { fetchWithAuth, showToast, showLoading, hideLoading, escapeHtml, renderPagination } = window.TelegramApp;
@@ -86,6 +106,7 @@
   let currentPage = 1;
   let currentSearch = '';
 
+  // ========== RENDER SURAHS ==========
   async function renderSurahs() {
   showLoading('Memuat surah...');
   try {
@@ -102,8 +123,7 @@
   </div>
   <div id="surahList"></div>
   </div>
-  </div>
-  `;
+  </div>`;
   container.innerHTML = html;
   renderSurahList(allSurahs, '');
   document.getElementById('searchSurah').addEventListener('input', (e) => {
@@ -120,6 +140,7 @@
   }
   }
 
+  // ========== RENDER SURAH LIST ==========
   function renderSurahList(surahs, filter) {
   const listContainer = document.getElementById('surahList');
   const term = filter.toLowerCase();
@@ -144,8 +165,7 @@
   </div>
   <i class="bi bi-chevron-right"></i>
   </div>
-  </div>
-  `;
+  </div>`;
   });
   listContainer.innerHTML = html;
   document.querySelectorAll('.surah-item').forEach(el => {
@@ -156,6 +176,7 @@
   });
   }
 
+  // ========== LOAD SURAH DETAIL ==========
   async function loadSurahDetail(surahNumber, page = 1, search = '') {
   showLoading('Memuat surah...');
   currentSurah = surahNumber;
@@ -174,6 +195,7 @@
   }
   }
 
+  // ========== RENDER DETAIL VIEW ==========
   function renderDetailView(data, surahNumber, page, search) {
   const surah = data.surah;
   const verses = data.verses;
@@ -195,11 +217,9 @@
   </form>
   ${search ? `<div class="alert alert-info text-center py-2">Menampilkan <strong>${verses.data.length}</strong> dari <strong>${verses.total}</strong> ayat dengan kata "<strong>${escapeHtml(search)}</strong>" (halaman ${verses.current_page} dari ${verses.last_page})</div>` : ''}
   <div id="versesList"></div>
-  <div id="paginationContainer" class="d-flex justify-content-center mt-4">
+  <div id="paginationContainer" class="d-flex justify-content-center mt-4"></div>
   </div>
-  </div>
-  </div>
-  `;
+  </div>`;
   document.getElementById('detail-view').innerHTML = html;
   document.getElementById('surah-view').style.display = 'none';
   document.getElementById('detail-view').style.display = 'block';
@@ -213,6 +233,7 @@
   });
   }
 
+  // ========== RENDER VERSES ==========
   function renderVerses(verses, searchTerm) {
   const container = document.getElementById('versesList');
   if (!verses.length) {
@@ -221,21 +242,100 @@
   }
   let html = '';
   verses.forEach(v => {
+  // ✅ Escape untuk mencegah rusaknya JSON
+  const payload = buildNotePayload(v);
+  const payloadStr = JSON.stringify(payload).replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+
+  const saveButtonHtml = window.NotesConfig?.notesAvailable ? `
+  <button class="btn btn-save-note btn-sm save-to-notes-btn"
+  data-payload="${payloadStr}">
+  <i class="bi bi-journal-plus me-1"></i> Simpan ke Notes
+  </button>` : '';
+
   html += `
   <div class="verse-item p-3 mb-3">
-  <div class="d-flex justify-content-between">
+  <div class="d-flex justify-content-between align-items-start mb-2">
   <span class="badge bg-primary">${v.verse_number}</span>
+  ${saveButtonHtml}
   </div>
   <div class="arabic-text text-end my-2" style="font-size:1.8rem; font-family: 'Traditional Arabic', serif;">${v.arabic_text}</div>
   <div class="latin-text text-muted mb-1">${escapeHtml(v.latin_text)}</div>
   <div class="translation">${escapeHtml(v.translation)}</div>
-  </div>
-  `;
+  </div>`;
   });
   container.innerHTML = html;
+
   if (searchTerm) highlightText(container, searchTerm);
+
+  // ✅ Pasang listener di dalam fungsi
+  if (window.NotesConfig?.notesAvailable) {
+  attachSaveButtonListeners(container);
+  }
   }
 
+  // ========== BUILD NOTE PAYLOAD ==========
+  function buildNotePayload(v) {
+  return {
+  title: `QS. ${currentSurah}:${v.verse_number}`,
+  content: `<div style="font-family: 'Traditional Arabic', serif; font-size:1.8rem; text-align:right;">${v.arabic_text}</div>
+  <p style="color:#a0a0a0;">${v.latin_text}</p>
+  <p>"${v.translation}"</p>`,
+  type: 'text',
+  tags: ['quran', `surah-${currentSurah}`, `ayat-${v.verse_number}`],
+  source_module: 'QuranAndHadits',
+  source_id: `${currentSurah}:${v.verse_number}`,
+  metadata: {
+  surah_number: currentSurah,
+  verse_number: v.verse_number,
+  arabic_text: v.arabic_text,
+  latin_text: v.latin_text,
+  translation: v.translation
+  }
+  };
+  }
+
+  // ========== ATTACH SAVE BUTTON LISTENERS ==========
+  function attachSaveButtonListeners(container) {
+  container.querySelectorAll('.save-to-notes-btn').forEach(btn => {
+  btn.addEventListener('click', async function(e) {
+  e.stopPropagation();
+  // ✅ Parse payload dengan aman
+  let payload;
+  try {
+  const str = this.dataset.payload.replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+  payload = JSON.parse(str);
+  } catch (err) {
+  showToast('❌ Gagal membaca data ayat', 'danger');
+  return;
+  }
+
+  this.disabled = true;
+  const originalHtml = this.innerHTML;
+  this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
+
+  try {
+  await fetchWithAuth(window.NotesConfig.notesEndpoint, {
+  method: 'POST',
+  body: JSON.stringify(payload)
+  });
+  showToast('✅ Berhasil disimpan ke Notes!', 'success');
+  this.innerHTML = '<i class="bi bi-check-lg me-1"></i> Tersimpan';
+  this.classList.add('btn-success');
+  setTimeout(() => {
+  this.disabled = false;
+  this.innerHTML = originalHtml;
+  this.classList.remove('btn-success');
+  }, 2000);
+  } catch (err) {
+  showToast('❌ Gagal menyimpan: ' + err.message, 'danger');
+  this.disabled = false;
+  this.innerHTML = originalHtml;
+  }
+  });
+  });
+  }
+
+  // ========== HIGHLIGHT TEXT ==========
   function highlightText(container, term) {
   const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
   container.querySelectorAll('.latin-text, .translation, .arabic-text').forEach(el => {
@@ -245,7 +345,8 @@
   });
   }
 
+  // ========== INIT ==========
   renderSurahs();
   })();
-</script>
-@endpush
+  </script>
+  @endpush

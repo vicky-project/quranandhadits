@@ -63,10 +63,31 @@
       color: #1a1a1a;
     }
   }
+
+  /* Tombol Simpan ke Notes */
+  .btn-save-note {
+    background: rgba(255, 193, 7, 0.15);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    color: #ffc107;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .btn-save-note:hover, .btn-save-note:active {
+    background: rgba(255, 193, 7, 0.3);
+    border-color: #ffc107;
+  }
+  .btn-save-note:disabled {
+    opacity: 0.7;
+  }
 </style>
 @endpush
 
 @push('scripts')
+<script>
+  window.NotesConfig = @json($notesConfig ?? ['notesAvailable' => false, 'notesEndpoint' => null]);
+</script>
 <script>
   (function() {
   const { fetchWithAuth, showToast, showLoading, hideLoading, escapeHtml, renderPagination } = window.TelegramApp;
@@ -76,6 +97,7 @@
   let currentPage = 1;
   let currentSearch = '';
 
+  // ========== RENDER BOOKS ==========
   async function renderBooks() {
   showLoading('Memuat kitab...');
   try {
@@ -92,8 +114,7 @@
   </div>
   <div id="booksList"></div>
   </div>
-  </div>
-  `;
+  </div>`;
   container.innerHTML = html;
   renderBooksList(allBooks, '');
   document.getElementById('searchBook').addEventListener('input', (e) => {
@@ -104,12 +125,13 @@
   } catch (err) {
   showToast('Gagal memuat kitab: ' + err.message);
   document.getElementById('books-view').style.display = 'block';
-  document.getElementById('book-view').innerHTML = `<div class="alert alert-danger">Gagal memuat kitab: ${err.message}</div>`;
+  document.getElementById('books-view').innerHTML = `<div class="alert alert-danger">Gagal memuat kitab: ${err.message}</div>`;
   } finally {
   hideLoading();
   }
   }
 
+  // ========== RENDER BOOKS LIST ==========
   function renderBooksList(books, filter) {
   const listContainer = document.getElementById('booksList');
   const term = filter.toLowerCase();
@@ -129,8 +151,7 @@
   </div>
   <i class="bi bi-chevron-right"></i>
   </div>
-  </div>
-  `;
+  </div>`;
   });
   listContainer.innerHTML = html;
   document.querySelectorAll('.book-item').forEach(el => {
@@ -141,6 +162,7 @@
   });
   }
 
+  // ========== LOAD HADITHS ==========
   async function loadHadiths(slug, page = 1, search = '') {
   showLoading('Memuat hadits...');
   currentBook = slug;
@@ -159,6 +181,7 @@
   }
   }
 
+  // ========== RENDER DETAIL VIEW ==========
   function renderDetailView(data, slug, page, search) {
   const book = data.book;
   const hadiths = data.hadiths;
@@ -182,8 +205,7 @@
   <div id="hadithsList"></div>
   <div id="paginationContainer" class="d-flex justify-content-center mt-4"></div>
   </div>
-  </div>
-  `;
+  </div>`;
   document.getElementById('detail-view').innerHTML = html;
   document.getElementById('books-view').style.display = 'none';
   document.getElementById('detail-view').style.display = 'block';
@@ -197,6 +219,7 @@
   });
   }
 
+  // ========== RENDER HADITHS ==========
   function renderHadiths(hadiths, searchTerm) {
   const container = document.getElementById('hadithsList');
   if (!hadiths.length) {
@@ -205,20 +228,96 @@
   }
   let html = '';
   hadiths.forEach(h => {
+  // Escape payload
+  const payload = buildNotePayload(h);
+  const payloadStr = JSON.stringify(payload).replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+
+  const saveButtonHtml = window.NotesConfig?.notesAvailable ? `
+  <button class="btn btn-save-note btn-sm save-to-notes-btn"
+  data-payload="${payloadStr}">
+  <i class="bi bi-journal-plus me-1"></i> Simpan ke Notes
+  </button>` : '';
+
   html += `
   <div class="hadith-item p-3 mb-3">
-  <div class="d-flex justify-content-between">
+  <div class="d-flex justify-content-between align-items-start mb-2">
   <span class="badge bg-primary">Hadits No. ${h.number}</span>
+  ${saveButtonHtml}
   </div>
   <div class="arabic-text text-end my-2" style="font-size:1.8rem; font-family: 'Traditional Arabic', serif;">${h.arabic}</div>
   <div class="translation">${escapeHtml(h.translation)}</div>
-  </div>
-  `;
+  </div>`;
   });
   container.innerHTML = html;
+
   if (searchTerm) highlightText(container, searchTerm);
+
+  // Pasang listener
+  if (window.NotesConfig?.notesAvailable) {
+  attachSaveButtonListeners(container);
+  }
   }
 
+  // ========== BUILD PAYLOAD ==========
+  function buildNotePayload(h) {
+  return {
+  title: `Hadits dari ${currentBook} No. ${h.number}`,
+  content: `<div style="font-family: 'Traditional Arabic', serif; font-size:1.8rem; text-align:right;">${h.arabic}</div>
+  <p>"${h.translation}"</p>`,
+  type: 'text',
+  tags: ['hadits', currentBook, `no-${h.number}`],
+  source_module: 'QuranAndHadits', // atau 'Hadith' sesuai modul
+  source_id: `${currentBook}:${h.number}`,
+  metadata: {
+  book: currentBook,
+  number: h.number,
+  arabic: h.arabic,
+  translation: h.translation
+  }
+  };
+  }
+
+  // ========== ATTACH LISTENERS ==========
+  function attachSaveButtonListeners(container) {
+  container.querySelectorAll('.save-to-notes-btn').forEach(btn => {
+  btn.addEventListener('click', async function(e) {
+  e.stopPropagation();
+  let payload;
+  try {
+  const str = this.dataset.payload.replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+  payload = JSON.parse(str);
+  } catch (err) {
+  showToast('❌ Gagal membaca data hadits', 'danger');
+  return;
+  }
+
+  this.disabled = true;
+  const originalHtml = this.innerHTML;
+  this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
+
+  try {
+  await fetchWithAuth(window.NotesConfig.notesEndpoint, {
+  method: 'POST',
+  body: JSON.stringify(payload)
+  });
+  showToast('✅ Berhasil disimpan ke Notes!', 'success');
+  this.innerHTML = '<i class="bi bi-check-lg me-1"></i> Tersimpan';
+  this.classList.add('btn-success');
+  setTimeout(() => {
+  this.disabled = false;
+  this.innerHTML = originalHtml;
+  this.classList.remove('btn-success');
+  }, 2000);
+  } catch (err) {
+  showToast('❌ Gagal menyimpan: ' + err.message, 'danger');
+  this.disabled = false;
+  this.innerHTML = originalHtml;
+  }
+  });
+  });
+  }
+
+  // ========== HIGHLIGHT TEXT ==========
   function highlightText(container, term) {
   const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
   container.querySelectorAll('.translation, .arabic-text').forEach(el => {
@@ -228,7 +327,8 @@
   });
   }
 
+  // ========== INIT ==========
   renderBooks();
   })();
-</script>
-@endpush
+  </script>
+  @endpush

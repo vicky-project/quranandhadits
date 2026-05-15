@@ -7,14 +7,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Modules\QuranAndHadits\Models\Surah;
 use Modules\QuranAndHadits\Models\Verse;
+use Modules\QuranAndHadits\Traits\HasNotes;
 
 class QuranController extends Controller
 {
+  use HasNotes;
+
   /**
   * Display a listing of the resource.
   */
   public function index(Request $request) {
-    return view('quranandhadits::quran');
+    return view('quranandhadits::quran', [
+      'notesConfig' => $this->notesJsConfig()
+    ]);
   }
 
   public function surahs() {
