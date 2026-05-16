@@ -51,7 +51,7 @@
   }
   .book-item:active, .hadith-item:active {
     background-color: var(--tg-theme-section-separator-color);
-    transform: scale(0.98);
+    transform: scale(0.28);
   }
   mark {
     background-color: #ffeb3b;
