@@ -84,10 +84,6 @@
 @endpush
 
 @push('scripts')
-<script src="//cdn.jsdelivr.net/npm/eruda"></script>
-<script>
-  eruda.init();
-</script>
 <script>
   window.NotesConfig = @json($notesConfig ?? ['notesAvailable' => false, 'notesEndpoint' => null]);
 </script>
