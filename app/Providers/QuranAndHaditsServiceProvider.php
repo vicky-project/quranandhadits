@@ -7,8 +7,8 @@ use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Illuminate\Pagination\Paginator;
-use Modules\QuranAndHadits\Telegram\SearchHadithHandler;
-use Modules\QuranAndHadits\Telegram\SearchQuranHandler;
+use Modules\QuranAndHadits\Telegram\InlineQueries\SearchHadithHandler;
+use Modules\QuranAndHadits\Telegram\InlineQueries\SearchQuranHandler;
 use Modules\Telegram\Services\Handlers\InlineQueryHandler;
 use Modules\Telegram\Services\Support\TelegramApi;
 
