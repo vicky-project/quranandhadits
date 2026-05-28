@@ -1,6 +1,7 @@
 <?php
 namespace Modules\QuranAndHadits\Telegram\InlineQueries;
 
+use Illuminate\Support\Facades\Cache;
 use Modules\Telegram\Services\Handlers\InlineQueries\BaseInlineQueryHandler;
 use Modules\QuranAndHadits\Models\Hadith;
 
@@ -19,19 +20,47 @@ class SearchHadithHandler extends BaseInlineQueryHandler
   protected function process(array $context): array
   {
     $fullQuery = $this->getQueryText($context);
-    $keyword = trim(mb_substr($fullQuery, 7));
+    $keyword = trim(mb_substr($fullQuery, 7)); // hapus "hadits "
 
     if (empty($keyword)) {
       return $this->emptyResult('Ketik: hadits [kata kunci]', 'hadits_help');
     }
 
-    $hadiths = Hadith::where('translation', 'like', "%{$keyword}%")
-    ->orWhere('arabic', 'like', "%{$keyword}%")
-    ->with('book')
-    ->limit(10)
-    ->get();
+    $cacheKey = "inline_hadith_search:" . md5($keyword);
 
-    if ($hadiths->isEmpty()) {
+    $results = Cache::remember($cacheKey, now()->addDays(7), function () use ($keyword) {
+      $hadiths = Hadith::where('translation', 'like', "%{$keyword}%")
+      ->orWhere('arabic', 'like', "%{$keyword}%")
+      ->with('book')
+      ->limit(10)
+      ->get();
+
+      if ($hadiths->isEmpty()) {
+        return [];
+      }
+
+      $items = [];
+      foreach ($hadiths as $hadith) {
+        $bookName = $hadith->book->name ?? 'Kitab Hadits';
+        $title = "HR. {$bookName} No. {$hadith->number}";
+        $messageText = "📜 *{$bookName} No. {$hadith->number}*\n\n";
+        if (!empty($hadith->arabic)) {
+          $messageText .= "{$hadith->arabic}\n\n";
+        }
+        $messageText .= $hadith->translation;
+
+        $items[] = $this->makeArticleResult(
+          id: "hadith_{$hadith->id}",
+          title: $title,
+          messageText: $messageText,
+          description: mb_substr(strip_tags($hadith->translation), 0, 60) . '...'
+        );
+      }
+
+      return $items;
+    });
+
+    if (empty($results)) {
       return $this->successResult([
         $this->makeArticleResult(
           'notfound',
@@ -42,24 +71,6 @@ class SearchHadithHandler extends BaseInlineQueryHandler
       ], ['cache_time' => 0]);
     }
 
-    $results = [];
-    foreach ($hadiths as $hadith) {
-      $bookName = $hadith->book->name ?? 'Kitab Hadits';
-      $title = "HR. {$bookName} No. {$hadith->number}";
-      $messageText = "📜 *{$bookName} No. {$hadith->number}*\n\n";
-      if (!empty($hadith->arabic)) {
-        $messageText .= "{$hadith->arabic}\n\n";
-      }
-      $messageText .= $hadith->translation;
-
-      $results[] = $this->makeArticleResult(
-        id: "hadith_{$hadith->id}",
-        title: $title,
-        messageText: $messageText,
-        description: mb_substr(strip_tags($hadith->translation), 0, 60) . '...'
-      );
-    }
-
-    return $this->successResult($results, ['cache_time' => 30]);
+    return $this->successResult($results, ['cache_time' => 60]);
   }
 }
