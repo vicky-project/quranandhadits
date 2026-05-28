@@ -7,6 +7,10 @@ use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Illuminate\Pagination\Paginator;
+use Modules\QuranAndHadits\Telegram\SearchHadithHandler;
+use Modules\QuranAndHadits\Telegram\SearchQuranHandler;
+use Modules\Telegram\Services\Handlers\InlineQueryHandler;
+use Modules\Telegram\Services\Support\TelegramApi;
 
 class QuranAndHaditsServiceProvider extends ServiceProvider
 {
@@ -42,6 +46,11 @@ class QuranAndHaditsServiceProvider extends ServiceProvider
       $this->registerHadithsHooks($class);
     }
 
+    if ($this->app->bound(InlineQueryHandler::class)) {
+      $handler = $this->app->make(InlineQueryHandler::class);
+      $this->registerTelegramInlineQueries($handler);
+    }
+
     Paginator::useBootstrapFive();
   }
 
@@ -67,6 +76,15 @@ class QuranAndHaditsServiceProvider extends ServiceProvider
     $hookService::registerHook(
       config($this->nameLower . ".hook.hadits.name"),
       $this->nameLower."::hooks.hadith-app"
+    );
+  }
+
+  protected function registerTelegramInlineQueries(InlineQueryHandler $handler): void {
+    $handler->registerHandler(
+      new SearchHadithHandler($this->app->make(TelegramApi::class))
+    );
+    $handler->registerHandler(
+      new SearchQuranHandler($this->app->make(TelegramApi::class))
     );
   }
 
