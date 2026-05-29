@@ -7,7 +7,7 @@ use Modules\QuranAndHadits\Models\Hadith;
 
 class SearchHadithHandler extends BaseInlineQueryHandler
 {
-  protected ?string $defaultParseMode = "MarkdownV2";
+  protected ?string $defaultParseMode = 'MarkdownV2';
 
   public function getName(): string
   {
@@ -22,7 +22,7 @@ class SearchHadithHandler extends BaseInlineQueryHandler
   protected function process(array $context): array
   {
     $fullQuery = $this->getQueryText($context);
-    $keyword = trim(mb_substr($fullQuery, 7)); // hapus "hadits "
+    $keyword = trim(mb_substr($fullQuery, 7));
 
     if (empty($keyword)) {
       return $this->emptyResult('Ketik: hadits [kata kunci]', 'hadits_help');
@@ -31,11 +31,20 @@ class SearchHadithHandler extends BaseInlineQueryHandler
     $cacheKey = "inline_hadith_search:" . md5($keyword);
 
     $results = Cache::remember($cacheKey, now()->addDays(7), function () use ($keyword) {
-      $hadiths = Hadith::where('translation', 'like', "%{$keyword}%")
-      ->orWhere('arabic', 'like', "%{$keyword}%")
-      ->with('book')
-      ->limit(10)
-      ->get();
+      // Gunakan fulltext untuk keyword minimal 3 karakter
+      if (mb_strlen($keyword) >= 3) {
+        $hadiths = Hadith::whereFullText(['arabic', 'translation'], $keyword)
+        ->with('book')
+        ->limit(10)
+        ->get();
+      } else {
+        // Fallback LIKE untuk keyword pendek (tidak didukung fulltext)
+        $hadiths = Hadith::where('translation', 'like', "%{$keyword}%")
+        ->orWhere('arabic', 'like', "%{$keyword}%")
+        ->with('book')
+        ->limit(10)
+        ->get();
+      }
 
       if ($hadiths->isEmpty()) {
         return [];
@@ -59,7 +68,6 @@ class SearchHadithHandler extends BaseInlineQueryHandler
           parseMode: $this->defaultParseMode
         );
       }
-
       return $items;
     });
 
@@ -69,7 +77,8 @@ class SearchHadithHandler extends BaseInlineQueryHandler
           'notfound',
           'Tidak ditemukan',
           "Tidak ada hadits yang mengandung \"{$keyword}\"",
-          'Coba kata kunci lain'
+          'Coba kata kunci lain',
+          parseMode: $this->defaultParseMode
         )
       ], ['cache_time' => 0]);
     }

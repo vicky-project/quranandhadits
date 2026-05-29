@@ -33,11 +33,19 @@ class SearchQuranHandler extends BaseInlineQueryHandler
 
     // Coba ambil dari cache
     $results = Cache::remember($cacheKey, now()->addDays(7), function () use ($keyword) {
-      $verses = Verse::where('translation', 'like', "%{$keyword}%")
-      ->orWhere('arabic_text', 'like', "%{$keyword}%")
-      ->with('surah')
-      ->limit(10)
-      ->get();
+      if (mb_strlen($keyword) >= 3) {
+        $verses = Verse::whereFullText(['arabic_text', 'translation'], $keyword)
+        ->with('surah')
+        ->limit(10)
+        ->get();
+      } else {
+        // fallback LIKE
+        $verses = Verse::where('translation', 'like', "%{$keyword}%")
+        ->orWhere('arabic_text', 'like', "%{$keyword}%")
+        ->with('surah')
+        ->limit(10)
+        ->get();
+      }
 
       if ($verses->isEmpty()) {
         return []; // cache hasil kosong
