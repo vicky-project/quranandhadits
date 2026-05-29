@@ -7,6 +7,8 @@ use Modules\QuranAndHadits\Models\Hadith;
 
 class SearchHadithHandler extends BaseInlineQueryHandler
 {
+  protected ?string $defaultParseMode = "MarkdownV2";
+
   public function getName(): string
   {
     return 'hadith_search';
@@ -42,7 +44,7 @@ class SearchHadithHandler extends BaseInlineQueryHandler
       $items = [];
       foreach ($hadiths as $hadith) {
         $bookName = $hadith->book->name ?? 'Kitab Hadits';
-        $title = "HR. {$bookName} No. {$hadith->number}";
+        $title = "{$bookName} No. {$hadith->number}";
         $messageText = "📜 *{$bookName} No. {$hadith->number}*\n\n";
         if (!empty($hadith->arabic)) {
           $messageText .= "{$hadith->arabic}\n\n";
@@ -53,7 +55,8 @@ class SearchHadithHandler extends BaseInlineQueryHandler
           id: "hadith_{$hadith->id}",
           title: $title,
           messageText: $messageText,
-          description: mb_substr(strip_tags($hadith->translation), 0, 60) . '...'
+          description: mb_substr(strip_tags($hadith->translation), 0, 60) . '...',
+          parseMode: $this->defaultParseMode
         );
       }
 
