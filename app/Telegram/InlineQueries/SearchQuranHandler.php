@@ -7,6 +7,8 @@ use Modules\QuranAndHadits\Models\Verse;
 
 class SearchQuranHandler extends BaseInlineQueryHandler
 {
+  protected ?string $defaultParseMode = "MarkdownV2";
+
   public function getName(): string
   {
     return 'quran_search';
@@ -54,7 +56,8 @@ class SearchQuranHandler extends BaseInlineQueryHandler
           id: "verse_{$verse->id}",
           title: $title,
           messageText: $messageText,
-          description: mb_substr($verse->translation, 0, 60) . '...'
+          description: mb_substr($verse->translation, 0, 60) . '...',
+          parseMode: $this->defaultParseMode
         );
       }
 
