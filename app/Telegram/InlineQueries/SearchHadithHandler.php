@@ -42,7 +42,7 @@ class SearchHadithHandler extends BaseInlineQueryHandler
       $items = [];
       foreach ($hadiths as $hadith) {
         $bookName = $hadith->book->name ?? 'Kitab Hadits';
-        $title = "HR. {$bookName} No. {$hadith->number}";
+        $title = "{$bookName} No. {$hadith->number}";
         $messageText = "📜 *{$bookName} No. {$hadith->number}*\n\n";
         if (!empty($hadith->arabic)) {
           $messageText .= "{$hadith->arabic}\n\n";
